@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tela Pai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container-pai">
+        <!-- Topo com botões e nome do usuário -->
+        <div class="top-bar d-flex justify-content-between align-items-center mb-3">
+            <!-- Botões com largura igual -->
+            <div class="d-flex gap-2 flex-grow-1">
+
+                <button type="button" class="btn btn-primary rounded-pill flex-fill">Gerenciar Usuários</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill">Definir Agenda</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill">Tabela Alunos</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill">Tabela Branca</button>
+            </div>
+
+            <!-- Botão de calendário  -->
+            <div class="ms-2">
+                <button type="button" class="btn btn-primary rounded-circle">
+                    <i class="bi bi-calendar-event"></i>
+                </button>
+            </div>
+
+            <div class="ms-3">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
+                        id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        João
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                        <li><a class="dropdown-item" href="#">Perfil</a></li>
+                        <li><a class="dropdown-item" href="#">Configurações</a></li>
+                        <li><a class="dropdown-item" href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal que vai mudar nas telas filhas -->
+        <div id="conteudo">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Orientador</th>
+                        <th>Prazo</th>
+                        <th>Status</th>
+                        <th>Banca</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                    <tr>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
