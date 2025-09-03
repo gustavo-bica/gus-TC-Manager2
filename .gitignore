@@ -21,5 +21,4 @@ Thumbs.db
 # build / output
 dist/
 build/
-frontend/orientador.html
-frontend/tela.html
+
