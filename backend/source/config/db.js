@@ -24,7 +24,7 @@ const pool = mysql.createPool({
   queueLimit: 0,
   ssl: {
     ca: fs.readFileSync(certPath).toString(),
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   },
   connectTimeout: 20000
 });
@@ -52,3 +52,12 @@ const pool = mysql.createPool({
 })();
 
 module.exports = pool;
+
+/* LISTA DE CÓDIGOS DE ERRO
+
+DB_CONNECTION_ERROR → Erro de conexão com o banco de dados.
+INTERNAL_ERROR → Erro interno genérico (fallback).
+VALIDATION_ERROR → Erro de validação (faltando campos obrigatórios).
+FORBIDDEN_ACTION → Usuário não tem permissão para executar a ação.
+
+*/ 

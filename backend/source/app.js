@@ -11,6 +11,7 @@ const avaliacaoBancaRoutes = require("./routes/avaliacaoBancaRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const bancaRoutes = require("./routes/bancaRoutes");
+const errorHandler = require("./middlewares/errorHandler");
 
 app.use(bodyParser.json());
 
@@ -26,5 +27,8 @@ app.use("/api", userRoutes);
 app.use("/api", bancaRoutes);
 
 app.get("/ping", (req, res) => res.json({ message: "pong 🏓" }));
+
+// sempre depois das rotas
+app.use(errorHandler);
 
 module.exports = app;

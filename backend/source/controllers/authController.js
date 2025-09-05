@@ -13,7 +13,11 @@ exports.login = async (req, res) => {
     console.log("📩 Dados recebidos no login:", req.body);
 
     if (!email || !password) {
-        return res.status(400).json({ error: "Email e senha são obrigatórios!" });
+        const err = new Error("Email e senha são obrigatórios!");
+        err.status = 400;
+        err.code = "AUTH_MISSING_CREDENTIALS";
+        err.level = "warning";  // 🟡 alerta amarelo
+        return next(err);
     }
 
     try {
@@ -21,7 +25,11 @@ exports.login = async (req, res) => {
         const [rows] = await db.query("SELECT * FROM USUARIOS WHERE email = ?", [email]);
 
         if (rows.length === 0) {
-            return res.status(401).json({ error: "Credenciais inválidas!" });
+            const err = new Error("Credenciais inválidas!");
+            err.status = 401;
+            err.code = "AUTH_INVALID_CREDENTIALS";
+            err.level = "error"; // 🔴 alerta vermelho
+            return next(err);
         }
 
         const usuario = rows[0];
@@ -29,7 +37,11 @@ exports.login = async (req, res) => {
         // confere a senha (precisa adicionar uma coluna para isso no db)
         const senhaCorreta = await bcrypt.compare(password, usuario.senha);
         if (!senhaCorreta) {
-            return res.status(401).json({ error: "Credenciais inválidas! "});
+            const err = new Error("Credenciais inválidas!");
+            err.status = 401;
+            err.code = "AUTH_INVALID_CREDENTIALS";
+            err.level = "error";    // 🔴 alerta vermelho
+            return next(err);
         }
 
         // gera o token
@@ -46,7 +58,10 @@ exports.login = async (req, res) => {
 
     } catch (err) {
         console.error("Erro no login:", err);
-        return res.status(500).json({ erro: "Erro interno do servidor" });
+        err.status = 500;
+        err.code = "AUTH_LOGIN_ERROR";
+        err.level = "error";    // 🔴 alerta vermelho
+        next(err);
     }
 
 };
@@ -57,7 +72,11 @@ exports.register = async (req, res) => {
     const { nome, email, password, id_tipo_usuario, id_curso } = req.body;
 
     if (!email || !password || !id_tipo_usuario) {
-        return res.status(400).json({ error: "Nome, email, senha e tipo de usuários são obrigatórios!" });
+        const err = new Error("Nome, email, senha e tipo de usuários são obrigatórios!");
+        err.status = 400;
+        err.code = "AUTH_REGISTER_MISSING_FIELDS";
+        err.level = "warning";  // 🟡 alerta amarelo
+        return next(err);
     }
 
     try {
@@ -79,8 +98,10 @@ exports.register = async (req, res) => {
 
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Erro ao registrar usuário" });
+        err.status = 500;
+        err.code = "AUTH_REGISTER_ERROR";
+        err.level = "error";    // 🔴 alerta vermelho
+        next(err);
     }
 };
 
@@ -89,7 +110,11 @@ exports.redefinirSenha = async (req, res) => {
     const { token, novaSenha } = req.body;
 
     if (!token || !novaSenha) {
-        return res.status(400).json({ error: "Token e nova senha são obrigatórios!" });
+        const err = new Error("Token e nova senha são obrigatórios!");
+        err.status = 400;
+        err.code = "PASSWORD_RESET_MISSING_FIELDS";
+        err.level = "warning";  // 🟡 alerta amarelo
+        return next(err);
     }
 
     try {
@@ -97,7 +122,11 @@ exports.redefinirSenha = async (req, res) => {
 
         // confere se ainda é válido em memória
         if (!resetTokens[decoded.email] || resetTokens[decoded.email] !== token) {
-            return res.status(400).json({ error: "Token inválido ou expirado! "});
+            const err = new Error("Token inválido ou expirado!");
+            err.status = 400;
+            err.code = "PASSWORD_RESET_TOKEN_INVALID";
+            err.level = "error";   // 🔴 alerta vermelho
+            return next(err);
         }
 
         const saltRounds = 10;
@@ -111,8 +140,10 @@ exports.redefinirSenha = async (req, res) => {
         return res.json({ message: "Senha redefinida com sucesso!" });
 
     } catch (err) {
-        console.error("Erro no redefinirSenha", err);
-        return res.status(500).json({ error: "Erro ao redefinir senha." })
+        err.status = 500;
+        err.code = "PASSWORD_RESET_ERROR";
+        err.level = "error";    // 🔴 alerta vermelho
+        next(err);
     }
 };
 
@@ -120,14 +151,24 @@ exports.redefinirSenha = async (req, res) => {
 exports.esqueciSenha = async (req, res) => {
     const { email } = req.body;
 
-    if (!email) return res.status(400).json({ error: "Email é obrigatório! "});
+    if (!email) {
+        const err = new Error("Email é obrigatório!");
+        err.status = 400;
+        err.code = "PASSWORD_EMAIL_MISSING";
+        err.level = "warning";  // 🟡 alerta amarelo
+        return next(err);
+    }
 
     try {
         // verifica se o usuário existe
         const [rows] = await db.query("SELECT * FROM USUARIOS WHERE email = ?", [email]);
 
         if (rows.length === 0) {
-            return res.status(404).json({ error: "Email não encontrado! "});
+            const err = new Error("Email não encontrado!");
+            err.status = 404;
+            err.code = "PASSWORD_EMAIL_NOT_FOUND";
+            err.level = "error";    // 🔴 alerta vermelho
+            return next(err);
         }
 
         const usuario = rows[0];
@@ -169,7 +210,22 @@ exports.esqueciSenha = async (req, res) => {
         return res.json({ message: "Email de redefinição enviado!" });
 
     } catch (err) {
-        console.error("Erro no esqueciSenha:", err);
-        return res.status(500).json({ error: "Erro ao processar solicitação" });
+        err.status = 500;
+        err.code = "PASSWORD_EMAIL_ERROR";
+        err.level = "error";    // 🔴 alerta vermelho
+        next(err);
     }
 };
+
+/* LISTA DE CÓDIGOS DE ERRO
+
+AUTH_INVALID_CREDENTIALS → Email ou senha inválidos no login.
+AUTH_TOKEN_EXPIRED → Token JWT expirado.
+AUTH_TOKEN_INVALID → Token inválido ou malformado.
+
+PASSWORD_RESET_TOKEN_INVALID → Token de redefinição inválido.
+PASSWORD_RESET_TOKEN_EXPIRED → Token de redefinição expirado.
+PASSWORD_RESET_ERROR → Erro ao redefinir senha.
+PASSWORD_EMAIL_ERROR → Erro ao enviar email de redefinição.
+
+*/

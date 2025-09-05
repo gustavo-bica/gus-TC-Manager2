@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../config/db");
 
 // rota para listar trabalhos com banca
-router.get("/bancas", async (req, res) => {
+router.get("/bancas", async (req, res, next) => {
     try {
         const [rows] = await db.query (`
             SELECT
@@ -23,8 +23,9 @@ router.get("/bancas", async (req, res) => {
             res.json(rows);
 
     } catch (err) {
-        console.error("Erro ao buscar bancas", err);
-        res.status(500).json({ error: "Erro ao buscar bancas." });
+        err.status = 500;
+        err.code = "USER_FETCH_CODE";
+        next(err);  // manda para o middleware
     }
 });
 
