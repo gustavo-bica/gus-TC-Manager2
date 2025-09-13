@@ -1,5 +1,4 @@
 require("dotenv").config();
-console.log("DB_USER:", process.env.DB_USER);
 const app = require("../app");
 
 const PORT = process.env.PORT || 3000;

@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");   // permite requisições do frontend
 
 const app = express();
 
@@ -14,6 +15,7 @@ const bancaRoutes = require("./routes/bancaRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 
 app.use(bodyParser.json());
+app.use(cors());
 
 // passa o router importado
 app.use("/alunos", alunoRoutes);
