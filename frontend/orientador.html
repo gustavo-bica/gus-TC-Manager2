@@ -85,26 +85,36 @@
     <script>
         async function carregarTabela() {
             try {
-                // chama a rota da API que busca os usuários
-                const res = await fetch("/api/usuarios");
+                const res = await fetch("http://localhost:3000/trabalhos");
                 const dados = await res.json();
 
                 const tbody = document.getElementById("tabelaUsuariosBody");
                 tbody.innerHTML = "";
 
+                if (dados.length === 0) {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = <td colspan="5" class="text-center">Nenhum trabalho encontrado.</td>;
+                    tbody.appendChild(tr);
+                    return;
+                }
+
                 dados.forEach(item => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = ` 
-                        <td>${item.nome}</td>
-                        <td>${item.matricula}</td>
-                        <td?${item.tipo}</td>
+                        <td>${item.aluno}</td>
+                        <td>${item.orientador}</td>
+                        <td>${item.prazo || 'N/A'}</td>
+                        <td>${item.status}</td>
+                        <td>${item.banca || 'N/A'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (err) {
-                console.error("Erro ao carregar tabela: ", err);
-            }
-        }
+                console.error("Erro ao carregar tabela:", err);
+                const tbody = document.getElementById("tabelaUsuariosBody");
+                tbody.innerHTML = <tr><td colspan="5" class="text-center">Erro ao carregar dados. Verifique a conexão com o servidor.</td></tr>;
+            }
+        }
 
         async function excluirUsuario(matricula) {
             if (confirma("Tem certeza que deseja excluir este usuário?")) {

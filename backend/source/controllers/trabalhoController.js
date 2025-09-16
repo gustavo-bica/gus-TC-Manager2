@@ -6,19 +6,22 @@ exports.listarTrabalhos = async (req, res, next) => {
     try {
         const query = `
             SELECT
-                T.titulo,
-                A.nome AS aluno,
-                O.nome AS orientador,
-                NULL AS prazo,
-                ST.descricao AS status,
-                (SELECT GROUP_CONCAT(U.nome SEPARATOR ', ')
-                 FROM BANCA_AVALIADORA BA
-                 JOIN USUARIOS U ON BA.id_professor = U.id_usuario
-                 WHERE BA.id_trabalho = T.id_trabalho) AS banca
-            FROM TRABALHOS T
-            JOIN USUARIOS A ON T.id_aluno = A.id_usuario
-            JOIN USUARIOS O ON T.id_orientador = O.id_usuario
-            JOIN STATUS_TRABALHO ST ON T.id_status = ST.id_status;
+                a.nome AS aluno,
+                o.nome AS orientador,
+                e.descricao AS prazo,
+                s.descricao AS status,
+                CONCAT(
+                    CAST((SELECT COUNT(*) 
+                        FROM BANCA_AVALIADORA ba 
+                        WHERE ba.id_trabalho = t.id_trabalho) AS CHAR),
+                    '/2'
+                ) AS banca
+            FROM TRABALHOS t
+            JOIN USUARIOS a ON t.id_aluno = a.id_usuario
+            JOIN USUARIOS o ON t.id_orientador = o.id_usuario
+            JOIN STATUS_TRABALHO s ON t.id_status = s.id_status
+            LEFT JOIN AVALIACOES av ON av.id_trabalho = t.id_trabalho
+            LEFT JOIN ETAPAS e ON av.id_etapa = e.id_etapa;
         `;
         
         const [rows] = await db.execute(query);
