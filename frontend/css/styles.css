@@ -27,3 +27,8 @@ table th {
     background-color: #007bff;
     color: white;
 }
+
+.btn-selected {
+    background-color: #232ab9;
+    color: white;
+}
