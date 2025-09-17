@@ -56,7 +56,7 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
                         id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> Amandela
+                        <i class="bi bi-person-circle"></i> João
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -68,64 +68,30 @@
         </div>
 
         <!-- Conteúdo principal -->
-        <div class="container mt-4">
-  <div class="row">
-    <!-- Área da tabela -->
-    <div class="col-md-8">
-      <table class="table table-bordered text-center align-middle">
-        <thead>
-          <tr>
-            <th colspan="5" class="text-white text-start fs-5 bg-primary">Rastreador de Tarefas</th>
-          </tr>
-          <tr class="bg-info text-dark">
-            <th style="width: 23%;">Banca</th>
-            <th style="width: 24%;">Aluno</th>
-            <th style="width: 23%;">Orientador</th>
-            <th style="width: 15%;">Prazo</th>
-            <th style="width: 15%;">Nota</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="5"></td>
-          </tr>
-          <tr>
-            <td colspan="5"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Área de edição -->
-    <div class="col-md-4">
-      <div class="card shadow">
-        <div class="card-header bg-secondary text-white">Editar Usuário</div>
-        <div class="card-body">
-          <form>
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome</label>
-              <input type="text" class="form-control" id="nome" placeholder="Digite o nome">
-            </div>
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="email" placeholder="Digite o e-mail">
-            </div>
-            <div class="mb-3">
-              <label for="matricula" class="form-label">Matrícula</label>
-              <input type="text" class="form-control" id="matricula" placeholder="Digite a matrícula">
-            </div>
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary flex-fill">Salvar</button>
-              <button type="reset" class="btn btn-outline-danger flex-fill">Cancelar</button>
-            </div>
-              <button type="button" class="btn btn-success w-100 mt-3" onclick="document.getElementById('formUsuario').reset()">Adicionar Usuário</button>
-            </div>
-          </form>
+        <div id="conteudo">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th colspan="5" class="text-white text-start fs-5 bg-primary">Usuários</th>
+                    </tr>
+                    <tr class="bg-info text-dark">
+                        <th style="width: 40%;">Nome</th>
+                        <th style="width: 20%;">Matricula/ID</th>
+                        <th style="width: 20%;">Tipo</th>
+                        <th style="width: 10%;">E</th>
+                        <th style="width: 10%;">B</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
     </div>
 
     <!-- Scripts -->
