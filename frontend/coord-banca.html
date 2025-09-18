@@ -82,7 +82,7 @@
                         <th style="width: 10%;">B</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabelaBancaBody">
                     <tr>
                         <td colspan="4"></td>
                     </tr>
@@ -106,6 +106,44 @@
             allowInput: true
         });
         document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+    </script>
+    
+    <script>
+        async function carregarBanca() {
+        try {
+            const res = await fetch("http://localhost:3000/banca");
+            const dados = await res.json();
+
+            const tbody = document.getElementById("tabelaBancaBody");
+            tbody.innerHTML = ""; // limpa antes de popular
+
+            if (dados.length === 0) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td colspan="5" class="text-center">Nenhum membro de banca encontrado.</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            dados.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td>${item.matricula}</td>
+                    <td>${item.tipo}</td>
+                    <td><button class="btn btn-sm btn-warning">✏️</button></td>
+                    <td><button class="btn btn-sm btn-danger">⛔</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch (error) {
+            console.error("Erro ao carregar banca:", error);
+        }
+    }
+
+    // carrega ao abrir a página
+    window.onload = carregarBanca;
+
     </script>
 </body>
 

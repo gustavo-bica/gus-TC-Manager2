@@ -1,33 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db");
+const bancaController = require("../controllers/bancaController"); 
+
+/* debug
+console.log("bancaController keys:", Object.keys(bancaController || {}));
+*/
 
 // rota para listar trabalhos com banca
-router.get("/bancas", async (req, res, next) => {
-    try {
-        const [rows] = await db.query (`
-            SELECT
-                t.id_trabalho,
-                a.nome AS aluno,
-                o.nome AS orientador,
-                GROUP_CONCAT(DISTINCT p.nome SEPARATOR ', ') AS banca,
-                t.nota_final AS nota
-            FROM TRABALHOS t
-            JOIN USUARIOS a ON t.id_aluno = a.id_usuario
-            JOIN USUARIOS o ON t.id_orientador = o.id_usuario
-            JOIN BANCA_AVALIADORA b on t.id_trabalho = b.id_trabalho
-            JOIN USUARIOS p ON b.id_professor = p.id_usuario
-            GROUP BY t.id_trabalho, a.nome, o.nome, t.nota_final;
-            `);
-
-            res.json(rows);
-
-    } catch (err) {
-        err.status = 500;
-        err.code = "USER_FETCH_CODE";
-        next(err);  // manda para o middleware
-    }
-});
+router.get("/", bancaController.listarBanca);
 
 module.exports = router;
 
