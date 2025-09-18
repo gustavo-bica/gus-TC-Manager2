@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <!-- Bootstrap e ícones -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-pai">
+        <!-- Topo com botões e usuário -->
+        <div class="top-bar d-flex justify-content-between align-items-center mb-3">
+
+            <!-- Botões principais -->
+            <div class="d-flex gap-2 flex-grow-1">
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="selecionarBotao(this)">Gerenciar Usuários</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="selecionarBotao(this)">Definir Agenda</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="selecionarBotao(this)">Tabela Alunos</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="selecionarBotao(this)">Tabela Branca</button>
+            </div>
+
+            <!-- Calendário -->
+            <div class="ms-2 position-relative">
+                <input type="text" id="datepicker" class="form-control d-none">
+                <button type="button" class="btn btn-primary rounded-circle" id="calendarBtn">
+                    <i class="bi bi-calendar-event"></i>
+                </button>
+            </div>
+
+            <!-- Usuário -->
+            <div class="ms-3">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
+                        id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> João
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                        <li><a class="dropdown-item" href="#">Perfil</a></li>
+                        <li><a class="dropdown-item" href="#">Configurações</a></li>
+                        <li><a class="dropdown-item" href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div id="conteudo">
+            <table class="table table-bordered text-center align-middle">
+                <thead>
+                    <tr>
+                        <th colspan="4" class="text-white text-start fs-5 bg-primary">Rastreador de Tarefas</th>
+                    </tr>
+                    <tr class="bg-info text-dark">
+                        <th style="width: 35%;">Aluno</th>
+                        <th style="width: 25%;">Orientador</th>
+                        <th style="width: 20%;">Status</th>
+                        <th style="width: 20%;">Banca</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Selecionar botão
+        function selecionarBotao(botaoClicado) {
+            document.querySelectorAll('.top-bar .btn.rounded-pill').forEach(btn => {
+                btn.classList.replace('btn-selected', 'btn-primary');
+            });
+            botaoClicado.classList.replace('btn-primary', 'btn-selected');
+        }
+
+        // Calendário
+        const fp = flatpickr("#datepicker", {
+            onChange: (dates, dateStr) => console.log("Data selecionada:", dateStr),
+            positionElement: document.getElementById('calendarBtn'),
+            allowInput: true
+        });
+        document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+    </script>
+</body>
+
+</html>

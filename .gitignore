@@ -22,3 +22,5 @@ Thumbs.db
 dist/
 build/
 
+frontend/aluno-definir.html
+frontend/aluno-desenvolvimento.html

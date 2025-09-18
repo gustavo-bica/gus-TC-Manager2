@@ -89,11 +89,11 @@
                 const dados = await res.json();
 
                 const tbody = document.getElementById("tabelaUsuariosBody");
-                tbody.innerHTML = "";
+                tbody.innerHTML = "";   // limpa a tabela antes de popular
 
                 if (dados.length === 0) {
                     const tr = document.createElement("tr");
-                    tr.innerHTML = <td colspan="5" class="text-center">Nenhum trabalho encontrado.</td>;
+                    tr.innerHTML = `<td colspan="5" class="text-center">Nenhum trabalho encontrado.</td>`;
                     tbody.appendChild(tr);
                     return;
                 }
@@ -112,9 +112,9 @@
             } catch (err) {
                 console.error("Erro ao carregar tabela:", err);
                 const tbody = document.getElementById("tabelaUsuariosBody");
-                tbody.innerHTML = <tr><td colspan="5" class="text-center">Erro ao carregar dados. Verifique a conexão com o servidor.</td></tr>;
-            }
-        }
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center">Erro ao carregar dados. Verifique a conexão com o servidor.</td></tr>`;
+        }
+    }
 
         async function excluirUsuario(matricula) {
             if (confirma("Tem certeza que deseja excluir este usuário?")) {
