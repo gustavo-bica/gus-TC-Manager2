@@ -81,7 +81,7 @@
                         <th style="width: 20%;">Banca</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabelaUsuariosBody">
                     <tr>
                         <td colspan="4"></td>
                     </tr>
@@ -105,6 +105,43 @@
             allowInput: true
         });
         document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+    </script>
+
+    <script>
+
+        async function carregarTabela() {
+            try {
+                const res = await fetch("http://localhost:3000/alunos");
+                const dados = await res.json();
+
+                const tbody = document.getElementById("tabelaUsuariosBody");
+                tbody.innerHTML = ""; // limpa a tabela antes de popular
+
+                if (dados.length === 0) {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td colspan="4" class="text-center">Nenhuma tarefa encontrada.</td>`;
+                    tbody.appendChild(tr);
+                    return;
+                }
+
+                dados.forEach(item => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${item.aluno}</td>
+                        <td>${item.orientador}</td>
+                        <td>${item.status}</td>
+                        <td>${item.banca}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar trabalhos:", error);
+            }
+        }
+
+        // carrega a tabela ao abrir a página
+        window.onload = carregarTabela;
     </script>
 </body>
 

@@ -2,7 +2,7 @@ require("dotenv").config();
 const mysql = require("mysql2/promise");
 
 const conn = mysql.createPool({
-  host: '127.0.0.1',
+  host: 'localhost',
   user: 'root',
   password: '',
   database: 'tc-manager',

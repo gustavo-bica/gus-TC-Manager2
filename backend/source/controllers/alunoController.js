@@ -7,15 +7,17 @@ exports.listarAlunos = async (req, res, next) => {
             SELECT
                 a.nome AS aluno,
                 o.nome AS orientador,
-                s.descricao AS status
-                CONCAT(
-                    (SELECT COUNT(*) FROM BANCA_AVALIADORA ba WHERE ba.id_trabalho = t.id_trabalho),
-                    '/2'
+                s.descricao AS status,
+                CAST(
+                    CONCAT(
+                        (SELECT COUNT(*) FROM BANCA_AVALIADORA ba WHERE ba.id_trabalho = t.id_trabalho),
+                        '/2'
+                    ) AS CHAR
                 ) AS banca
             FROM TRABALHOS t
             JOIN USUARIOS a ON t.id_aluno = a.id_usuario
             JOIN USUARIOS o ON t.id_orientador = o.id_usuario
-            JOIN STATUS_TRABALHO s ON t.id_status = s.id_status
+            JOIN STATUS_TRABALHO s ON t.id_status = s.id_status;
             `);
 
         res.json(rows);
