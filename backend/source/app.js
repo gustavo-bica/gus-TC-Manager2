@@ -24,6 +24,7 @@ app.use("/professores", professorRoutes);
 app.use("/trabalhos", trabalhoRoutes);
 //app.use("/avaliacoes", avaliacaoBancaRoutes);
 app.use("/banca", bancaRoutes)
+app.use('/users', userRoutes);
 
 
 app.use("/api", authRoutes);
