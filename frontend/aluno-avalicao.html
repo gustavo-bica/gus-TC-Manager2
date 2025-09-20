@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <!-- Bootstrap e ícones -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-pai">
+        <!-- Topo com botões e usuário -->
+        <div class="top-bar d-flex justify-content-between align-items-center mb-3">
+
+            <!-- Botões principais -->
+            <div class="d-flex gap-2 flex-grow-1">
+                <button type="button" class="btn btn-primary rounded-pill flex-fill"
+                    onclick="window.location.href='aluno-definir.html'">Definir Orientador</button>
+
+                <button type="button" class="btn btn-primary rounded-pill flex-fill"
+                    onclick="window.location.href='aluno-desenvolvimento.html'">Desenvolvimento</button>
+
+                <button type="button" class="btn btn-selected rounded-pill flex-fill">Avaliação</button>
+            </div>
+
+            <script>
+                // Selecionar botão, com parametro de sua respectiva tela
+                function selecionarBotao(botaoClicado) {
+                    document.querySelectorAll('.top-bar .btn.rounded-pill').forEach(btn => {
+                        btn.classList.replace('btn-selected', 'btn-primary');
+                    });
+                    botaoClicado.classList.replace('btn-primary', 'btn-selected');
+                }
+            </script>
+
+            <!-- Calendário -->
+            <div class="ms-2 position-relative">
+                <input type="text" id="datepicker" class="form-control d-none">
+                <button type="button" class="btn btn-primary rounded-circle" id="calendarBtn">
+                    <i class="bi bi-calendar-event"></i>
+                </button>
+            </div>
+
+            <!-- Usuário -->
+            <div class="ms-3">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
+                        id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> João
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                        <li><a class="dropdown-item" href="#">Perfil</a></li>
+                        <li><a class="dropdown-item" href="#">Configurações</a></li>
+                        <li><a class="dropdown-item" href="#">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div id="conteudo">
+            <div class="row">
+                <div class="col-4">
+                    <div class="d-flex flex-column mb-2">
+
+                        <!-- Linha 1 -->
+                        <div class="d-flex justify-content-between align-items-center rounded-pill mb-2 px-3">
+                            <span class="fw-bold px-4 py-1 rounded"
+                                style="background-color: #ffbd59; border-radius: 0.25rem;">Prazo final para envio</span>
+
+                            <!-- Cronômetro -->
+                            <span class="fw-bold px-3 py-1 ms-3 rounded"
+                                style="background-color: #198754; color: white; border-radius: 0.25rem;">00:00:00</span>
+                        </div>
+
+                        <!-- Linha 2 -->
+                        <div class="d-flex align-items-center rounded-pill mb-2" style="background-color: #f1efef;">
+                            <button class="btn btn-sm btn-selected rounded-pill me-3"
+                                style="width: 150px;">Arquivo</button>
+                            <span class="fw-bold">Nome do arquivo</span>
+                        </div>
+                    </div>
+
+                    <table class="table table-bordered text-center align-middle">
+                        <thead>
+                            <tr>
+                                <th colspan="2" class="text-white text-start fs-5 bg-primary">Nome e Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold" style="width: 40%;">Orientador</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Banca 1</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Banca 2</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Coordenador</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-8">
+                    <table class="table table-bordered text-center align-middle">
+                        <thead>
+                            <tr>
+                                <th colspan="3" class="text-white text-start fs-5 bg-primary">Avaliação</th>
+                            </tr>
+                            <tr class="bg-info text-dark">
+                                <th style="width: 40%;">Ação</th>
+                                <th style="width: 20%;">Data</th>
+                                <th style="width: 40%;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script>
+            // Calendário
+            const fp = flatpickr("#datepicker", {
+                onChange: (dates, dateStr) => console.log("Data selecionada:", dateStr),
+                positionElement: document.getElementById('calendarBtn'),
+                allowInput: true
+            });
+            document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+        </script>
+</body>
+
+</html>
