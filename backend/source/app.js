@@ -13,6 +13,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const bancaRoutes = require("./routes/bancaRoutes");
 const errorHandler = require("./middlewares/errorHandler");
+const coordRoutes = require("./routes/coordRoutes");
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/trabalhos", trabalhoRoutes);
 //app.use("/avaliacoes", avaliacaoBancaRoutes);
 app.use("/banca", bancaRoutes)
 //app.use('/users', userRoutes);
+app.use("/coordenador", coordRoutes);
 
 
 app.use("/auth", authRoutes);
