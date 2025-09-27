@@ -56,7 +56,8 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
                         id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> Jones
+                        <i class="bi bi-person-circle"></i>
+                        <span id="nome-usuario">Carregando...</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -81,7 +82,7 @@
                         <th style="width: 20%;">Banca</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tabela-agenda-body">
                     <tr>
                         <td colspan="4"></td>
                     </tr>
@@ -105,6 +106,83 @@
             allowInput: true
         });
         document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarNomeUsuario();
+            carregarDadosAgenda();
+        });
+
+        function carregarNomeUsuario() {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+            const nomeUsuarioEl = document.getElementById('nome-usuario');
+
+            if (userInfo && userInfo.nome) {
+                nomeUsuarioEl.textContent = userInfo.nome;
+            } else {
+                nomeUsuarioEl.textContent = 'Usuário';
+            }
+        }
+
+        async function carregarDadosAgenda() {
+            const token = localStorage.getItem('authToken');
+            const tbody = document.getElementById('tabela-agenda-body');
+
+            tbody.innerHTML = '<tr><td colspan="4">Carregando dados...</td></tr>';
+
+            // verificação de segurança: se não há token, redireciona para o login
+            if (!token) {
+                window.location.href = 'index.html'
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/coordenador/agenda', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // se token for inválido ou expirado
+                if (!response.ok) {
+                    // limpa o armazenamento e redireciona para o login
+                    localStorage.clear();
+                    window.location.href = 'index.html'
+                    return;
+                }
+
+                const trabalhos = await response.json();
+
+                // limpa a mensagem de "Carregando..."
+                tbody.innerHTML = '';
+
+                if (trabalhos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum trabalho encontrado.</td></tr>';
+                } else {
+                    trabalhos.forEach(trabalho => { 
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                            <td>${trabalho.nome_aluno}</td>
+                            <td>${trabalho.nome_orientador}</td>
+                            <td><span class="badge bg-primary">${trabalho.status}</span></td>
+                            <td>
+                                <button class="btn btn-info btn-sm">
+                                    <i class="bi bi-calendar-plus"></i> Agendar
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error("Err oao buscar dados da agenda:", error);
+                tbody.innerHTML = '<tr><td colspan="4" class="text-danger">Falha ao carregar os dados. Verifique a conexão com o servidor.</td></tr>'
+            }
+        }
+
     </script>
 </body>
 
