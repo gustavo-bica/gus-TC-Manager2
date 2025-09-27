@@ -84,7 +84,7 @@
 
             // conexão com a API/banco
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch("http://localhost:3000/auth/login", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password: senha })
@@ -94,12 +94,34 @@
 
                 // Login com algo errado
                 if (!response.ok) {
-                    erroMsg.textContent = data.message || 'Usuário ou senha inválidos.';
+                    erroMsg.textContent = data.message || 'Credenciais inválidas ou acesso não permitido.';
                     entrarBtn.disabled = false;
                     entrarBtn.textContent = originalText;
                 } else {
-                    // Login bem-sucedido
-                    window.location.href = 'tela.html';
+
+                    // salva o token no localStorage do navegador
+                    localStorage.setItem('authToken', data.token);
+
+                    // salva os dados do usuário também
+                    localStorage.setItem('userInfo', JSON.stringify(data.user))
+
+                    // decide para onde redirecionar com base no tipo de usuário
+                    switch (data.user.tipo) {
+                        case 'coordenador':
+                            window.location.href = 'coordenador.html';
+                            break;
+                        case 'aluno':
+                            window.location.href = 'aluno-avalicao.html';
+                            break;
+                        case 'professor':
+                            window.location.href = 'orientador.html';
+                            break;
+                        default:
+                            erroMsg.textContent = 'Tipo de usuário não reconhecido.'
+                            entrarBtn.disabled = false;
+                            entrarBtn.textContent = originalText;
+                    }
+
                 }
             // se conexão com API não der certo
             } catch (error) {
