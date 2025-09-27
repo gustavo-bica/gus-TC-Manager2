@@ -8,6 +8,14 @@ router.get(
     "/agenda",
     authMiddleware, 
     authorize(['coordenador']), // <-- apenas coordenador é permitido
-    coordController.getAgenda);
+    coordController.getAgenda
+);
+
+router.get(
+    "/bancas",
+    authMiddleware,
+    authorize(['coordenador']),
+    coordController.getBancas
+);
 
 module.exports = router;
