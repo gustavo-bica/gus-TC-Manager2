@@ -24,11 +24,11 @@ app.use("/professores", professorRoutes);
 app.use("/trabalhos", trabalhoRoutes);
 //app.use("/avaliacoes", avaliacaoBancaRoutes);
 app.use("/banca", bancaRoutes)
-app.use('/users', userRoutes);
+//app.use('/users', userRoutes);
 
 
-app.use("/api", authRoutes);
-app.use("/api", userRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 
 

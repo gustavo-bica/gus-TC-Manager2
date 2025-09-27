@@ -7,7 +7,7 @@ const db = require("../config/db");
 let resetTokens = {};
 
 // LOGIN
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     const { email, password } = req.body;
 
     console.log("📩 Dados recebidos no login:", req.body);
@@ -34,8 +34,12 @@ exports.login = async (req, res) => {
 
         const usuario = rows[0];
 
+        console.log("🔍 Objeto 'usuario' recuperado do banco:", usuario);
+
+        const hashDoBanco = String(usuario.tx_senha);
+
         // confere a senha (precisa adicionar uma coluna para isso no db)
-        const senhaCorreta = await bcrypt.compare(password, usuario.senha);
+        const senhaCorreta = await bcrypt.compare(password, hashDoBanco);
         if (!senhaCorreta) {
             const err = new Error("Credenciais inválidas!");
             err.status = 401;
@@ -44,16 +48,35 @@ exports.login = async (req, res) => {
             return next(err);
         }
 
+        // traduz o id do tipo de usuário para um "nome de perfil"
+        let tipoUsuario = '';
+        switch (usuario.id_tipo_usuario) {
+            case 1: tipoUsuario = 'aluno'; break;
+            case 2: tipoUsuario = 'professor'; break;
+            case 3: tipoUsuario = 'coordenador'; break;
+            default: tipoUsuario = 'desconhecido';
+        }
+
         // gera o token
+        const tokenPayload = {
+            id: usuario.id_usuario,
+            email: usuario.email,
+            tipo: tipoUsuario
+        };
+
         const token = jwt.sign(
-            { id: usuario.id_usuario, email: usuario.email },
+            tokenPayload,
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
         return res.json({
             message: "Login bem-sucedido!",
-            token
+            token: token,
+            user: {
+                nome: usuario.nome,
+                tipo: tipoUsuario
+            }
         });
 
     } catch (err) {
