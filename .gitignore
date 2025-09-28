@@ -22,3 +22,6 @@ Thumbs.db
 dist/
 build/
 
+# Pasta com os arquivos enviados pelos usuários
+uploads/
+
