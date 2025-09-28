@@ -3,14 +3,19 @@
 const db = require("../database/connection");
 
 const Trabalho = {
-  
+
   create: async (trabalhoData) => {
     const { titulo, resumo, id_aluno, id_orientador, id_status } = trabalhoData;
     const query = "INSERT INTO TRABALHOS (titulo, resumo, id_aluno, id_orientador, id_status) VALUES (?, ?, ?, ?, ?)";
     const [result] = await db.execute(query, [titulo, resumo, id_aluno, id_orientador, id_status]);
     return result;
   },
-
+  definirOrientador: async (idTrabalho, idOrientador) => {
+    // Exemplo: muda o status para 'Proposta em avaliacao' (ID 2)
+    const query = "UPDATE TRABALHOS SET id_orientador = ?, id_status = 2 WHERE id_trabalho = ?";
+    const [result] = await db.execute(query, [idOrientador, idTrabalho]);
+    return result;
+  },
   getAll: async () => {
     const query = `
       SELECT T.id_trabalho, T.titulo, A.nome AS nome_aluno, O.nome AS nome_orientador, S.descricao AS status
@@ -48,7 +53,7 @@ const Trabalho = {
     const [result] = await db.execute(query, [id]);
     return result;
   },
-  
+
   updateLink: async (idTrabalho, link) => {
     const query = "UPDATE TRABALHOS SET link_repositorio = ? WHERE id_trabalho = ?";
     const [result] = await db.execute(query, [link, idTrabalho]);
@@ -58,11 +63,11 @@ const Trabalho = {
   createEntrega: async (dadosEntrega) => {
     const query = "INSERT INTO ENTREGAS (id_trabalho, id_etapa, data_prevista, data_entrega, caminho_arquivo) VALUES (?, ?, ?, ?, ?)";
     const params = [
-        dadosEntrega.id_trabalho,
-        dadosEntrega.id_etapa,
-        dadosEntrega.data_prevista,
-        dadosEntrega.data_entrega,
-        dadosEntrega.caminho_arquivo
+      dadosEntrega.id_trabalho,
+      dadosEntrega.id_etapa,
+      dadosEntrega.data_prevista,
+      dadosEntrega.data_entrega,
+      dadosEntrega.caminho_arquivo
     ];
     const [result] = await db.execute(query, params);
     return result;
@@ -87,7 +92,23 @@ const Trabalho = {
       const [result] = await db.execute(insertQuery, [id_trabalho, id_etapa, data_prevista, data_entrega, caminho_arquivo]);
       return result;
     }
-  }
+  },
+  // Altera o status de um trabalho (ex: para 'Aprovado' ou 'Recusado')
+  atualizarStatus: async (idTrabalho, idStatus) => {
+    const query = "UPDATE TRABALHOS SET id_status = ? WHERE id_trabalho = ?";
+    const [result] = await db.execute(query, [idStatus, idTrabalho]);
+    return result;
+  },
+
+  // Remove o orientador de um trabalho (caso ele recuse)
+  removerOrientador: async (idTrabalho) => {
+    // Volta o status para 1 ('Proposta em elaboracao')
+    const query = "UPDATE TRABALHOS SET id_orientador = NULL, id_status = 1 WHERE id_trabalho = ?";
+    const [result] = await db.execute(query, [idTrabalho]);
+    return result;
+  },
+
+
 };
 
 module.exports = Trabalho;
