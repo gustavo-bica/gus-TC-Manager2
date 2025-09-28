@@ -1,15 +1,15 @@
-// source/routes/professorRoutes.js
 const express = require("express");
 const router = express.Router();
 const professorController = require("../controllers/professorController");
 
-// Rota para o professor VER suas solicitações de orientação
+// Rota para o ALUNO listar os orientadores (GET /professores)
+router.get("/", professorController.listarOrientadores);
+
+// Rota para o PROFESSOR ver suas solicitações pendentes (GET /professores/solicitacoes)
 router.get("/solicitacoes", professorController.verSolicitacoes);
 
-// Rota para o professor ACEITAR uma solicitação
+// Rotas para o PROFESSOR aceitar ou recusar
 router.post("/trabalhos/:idTrabalho/aceitar", professorController.aceitarSolicitacao);
-
-// Rota para o professor RECUSAR uma solicitação
 router.post("/trabalhos/:idTrabalho/recusar", professorController.recusarSolicitacao);
 
 module.exports = router;

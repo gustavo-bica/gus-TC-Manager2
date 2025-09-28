@@ -1,6 +1,9 @@
-const db = require("../config/db");
+// source/controllers/alunoController.js
 
-// rota para listar os alunos e seus trabalhos
+const Trabalho = require('../models/trabalhoModel'); // <-- LINHA ADICIONADA PARA CORRIGIR O ERRO
+const db = require("../config/db"); // Presumo que você use isso para o listarAlunos
+
+// Rota para listar os alunos e seus trabalhos
 exports.listarAlunos = async (req, res, next) => {
     try {
         const [rows] = await db.query(`
@@ -18,55 +21,38 @@ exports.listarAlunos = async (req, res, next) => {
             JOIN USUARIOS a ON t.id_aluno = a.id_usuario
             JOIN USUARIOS o ON t.id_orientador = o.id_usuario
             JOIN STATUS_TRABALHO s ON t.id_status = s.id_status;
-            `);
-
+        `);
         res.json(rows);
-
     } catch (err) {
         err.status = 500;
         err.code = "ALUNO_FETCH_ERROR";
-        err.level = "error";    // 🔴 alerta vermelho
-        next(err);  // manda para o middleware
+        err.level = "error";
+        next(err);
     }
 };
 
-
-/* SUGESTÃO DE CÓDIGO PARA O SCRIPT NO FRONTEND
-
-<table id="tabelaAlunos" class="table">
-  <thead>
-    <tr>
-      <th>Aluno</th>
-      <th>Orientador</th>
-      <th>Status</th>
-      <th>Banca</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<script>
-async function carregarTabelaAlunos() {
+// Rota para o aluno solicitar um orientador
+exports.solicitarOrientador = async (req, res, next) => {
     try {
-        const response = await fetch("http://localhost:3000/alunos");
-        const alunos = await response.json();
+        const idAluno = 2; // Exemplo: ID do "João"
+        const { id_orientador } = req.body;
 
-        const tbody = document.querySelector("#tabelaAlunos tbody");
-        tbody.innerHTML = "";
+        if (!id_orientador) {
+            return res.status(400).json({ message: "ID do orientador é obrigatório." });
+        }
 
-        alunos.forEach(a => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${a.aluno}</td>
-                <td>${a.orientador}</td>
-                <td>${a.status}</td>
-                <td>${a.banca}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // Agora a variável "Trabalho" existe e estas linhas vão funcionar
+        const trabalho = await Trabalho.findByAlunoId(idAluno);
+        if (!trabalho) {
+            return res.status(404).json({ message: "Trabalho do aluno não encontrado para este usuário." });
+        }
+
+        await Trabalho.definirOrientador(trabalho.id_trabalho, id_orientador);
+
+        res.status(200).json({ message: "Orientador solicitado com sucesso!" });
+
     } catch (err) {
-        console.error("Erro ao carregar alunos:", err);
+        console.error("Erro ao solicitar orientador:", err);
+        next(err); 
     }
-}
-
-*/
+};
