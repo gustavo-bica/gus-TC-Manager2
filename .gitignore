@@ -22,3 +22,9 @@ Thumbs.db
 dist/
 build/
 
+# Ignora todo o conteúdo da pasta uploads...
+uploads/*
+
+# ...mas NÃO ignora o arquivo .gitkeep (mantém a pasta)
+!uploads/.gitkeep
+
