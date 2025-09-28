@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require("cors");   // permite requisições do frontend
+const cors = require("cors");
 
 const app = express();
 
@@ -17,6 +17,7 @@ const coordRoutes = require("./routes/coordRoutes");
 
 app.use(bodyParser.json());
 app.use(cors());
+app.use('/uploads', express.static('uploads'));
 
 // passa o router importado
 app.use("/alunos", alunoRoutes);
@@ -32,7 +33,9 @@ app.use("/coordenador", coordRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 
-
+app.use(cors({
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+}));
 
 app.get("/ping", (req, res) => res.json({ message: "pong 🏓" }));
 
