@@ -2,7 +2,15 @@ const Professor = require('../models/professorModel');
 const Trabalho = require('../models/trabalhoModel');
 
 const professorController = {
-    // Busca as solicitações pendentes para um professor
+    // Para o aluno listar os professores disponíveis
+    listarOrientadores: async (req, res, next) => {
+        try {
+            const orientadores = await Professor.listarOrientadores();
+            res.status(200).json(orientadores);
+        } catch (err) { next(err); }
+    },
+
+    // Para o professor ver suas solicitações pendentes
     verSolicitacoes: async (req, res, next) => {
         try {
             const idProfessor = 3; // Fixo para teste (Prof. Lima)
@@ -11,17 +19,16 @@ const professorController = {
         } catch (err) { next(err); }
     },
 
-    // Aceita a orientação de um trabalho
+    // Para o professor aceitar uma solicitação
     aceitarSolicitacao: async (req, res, next) => {
         try {
             const { idTrabalho } = req.params;
-            // Status 3 = 'TC em andamento'
-            await Trabalho.atualizarStatus(idTrabalho, 3);
+            await Trabalho.atualizarStatus(idTrabalho, 3); // Status 3 = 'TC em andamento'
             res.status(200).json({ message: "Solicitação aceita!" });
         } catch (err) { next(err); }
     },
 
-    // Recusa a orientação de um trabalho
+    // Para o professor recusar uma solicitação
     recusarSolicitacao: async (req, res, next) => {
         try {
             const { idTrabalho } = req.params;
