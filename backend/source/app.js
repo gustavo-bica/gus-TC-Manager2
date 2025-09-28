@@ -36,7 +36,11 @@ app.use("/user", userRoutes);
 app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 }));
-
+const uploadsDir = path.join(__dirname, 'uploads'); // Encontra o caminho da pasta
+if (!fs.existsSync(uploadsDir)) {                   // Verifica se a pasta não existe
+    fs.mkdirSync(uploadsDir);                       // Cria a pasta
+    console.log('Pasta "uploads" criada com sucesso.');
+}
 app.get("/ping", (req, res) => res.json({ message: "pong 🏓" }));
 
 // sempre depois das rotas
