@@ -4,66 +4,30 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
-    <!-- Bootstrap e ícones -->
+    <title>Definir Orientador</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link href="css/styles.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container-pai">
-        <!-- Topo com botões e usuário -->
+    <div class="container p-4">
         <div class="top-bar d-flex justify-content-between align-items-center mb-3">
-
-            <!-- Botões principais -->
             <div class="d-flex gap-2 flex-grow-1">
-                <button type="button" class="btn btn-selected rounded-pill flex-fill">Definir Orientador</button>
-
-                <button type="button" class="btn btn-primary rounded-pill flex-fill"
-                    onclick="window.location.href='aluno-desenvolvimento.html'">Desenvolvimento</button>
-
-                <button type="button" class="btn btn-primary rounded-pill flex-fill"
-                    onclick="window.location.href='aluno-avalicao.html'">Avaliação</button>
+                <button type="button" class="btn btn-dark rounded-pill flex-fill">Definir Orientador</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='aluno-desenvolvimento.html'">Desenvolvimento</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='aluno-avalicao.html'">Avaliação</button>
             </div>
-
-            <script>
-                // Selecionar botão, com parametro de sua respectiva tela
-                function selecionarBotao(botaoClicado) {
-                    document.querySelectorAll('.top-bar .btn.rounded-pill').forEach(btn => {
-                        btn.classList.replace('btn-selected', 'btn-primary');
-                    });
-                    botaoClicado.classList.replace('btn-primary', 'btn-selected');
-                }
-            </script>
-
-            <!-- Calendário -->
-            <div class="ms-2 position-relative">
-                <input type="text" id="datepicker" class="form-control d-none">
-                <button type="button" class="btn btn-primary rounded-circle" id="calendarBtn">
-                    <i class="bi bi-calendar-event"></i>
+            <div class="ms-3 dropdown">
+                <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> João
                 </button>
-            </div>
-
-            <!-- Usuário -->
-            <div class="ms-3">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
-                        id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> João
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
-                        <li><a class="dropdown-item" href="#">Perfil</a></li>
-                        <li><a class="dropdown-item" href="#">Configurações</a></li>
-                        <li><a class="dropdown-item" href="#">Sair</a></li>
-                    </ul>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Sair</a></li>
+                </ul>
             </div>
         </div>
 
-        <!-- Conteúdo principal -->
         <div id="conteudo">
             <table class="table table-bordered text-center align-middle">
                 <thead>
@@ -78,25 +42,80 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4">Carregando...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Calendário
-        const fp = flatpickr("#datepicker", {
-            onChange: (dates, dateStr) => console.log("Data selecionada:", dateStr),
-            positionElement: document.getElementById('calendarBtn'),
-            allowInput: true
+        const tabelaBody = document.querySelector("#conteudo > table > tbody");
+
+        async function solicitarOrientador(idOrientador, botaoClicado) {
+            if (!confirm("Tem certeza que deseja solicitar este orientador?")) return;
+            try {
+                const response = await fetch('http://localhost:3000/alunos/solicitar-orientador', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_orientador: idOrientador })
+                });
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || "Não foi possível processar a solicitação.");
+                }
+                alert("Solicitação enviada com sucesso!");
+                document.querySelectorAll('.solicitar-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+                botaoClicado.textContent = "Solicitado";
+                botaoClicado.classList.replace('btn-success', 'btn-secondary');
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
+        }
+
+        async function carregarOrientadores() {
+            try {
+                const response = await fetch('http://localhost:3000/professores');
+                if (!response.ok) throw new Error("Não foi possível carregar a lista de orientadores. Verifique o backend.");
+                
+                const orientadores = await response.json();
+                tabelaBody.innerHTML = ''; 
+
+                if (orientadores.length === 0) {
+                    tabelaBody.innerHTML = '<tr><td colspan="4">Nenhum orientador disponível.</td></tr>';
+                    return;
+                }
+
+                orientadores.forEach(prof => {
+                    const linha = `
+                        <tr>
+                            <td>${prof.nome}</td>
+                            <td>${prof.total_orientandos}</td>
+                            <td>${prof.email}</td>
+                            <td>
+                                <button class="btn btn-success solicitar-btn" data-id="${prof.id_usuario}">
+                                    Solicitar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tabelaBody.innerHTML += linha;
+                });
+            } catch (error) {
+                tabelaBody.innerHTML = `<tr><td colspan="4" class="text-danger">${error.message}</td></tr>`;
+            }
+        }
+        
+        tabelaBody.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('solicitar-btn')) {
+                const idOrientador = event.target.dataset.id;
+                solicitarOrientador(idOrientador, event.target);
+            }
         });
-        document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+
+        document.addEventListener('DOMContentLoaded', carregarOrientadores);
     </script>
 </body>
-
 </html>
