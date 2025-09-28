@@ -3,17 +3,16 @@ const router = express.Router();
 const trabalhoController = require("../controllers/trabalhoController");
 const upload = require('../config/multerConfig');
 
-// Rota para CARREGAR todos os dados da página de desenvolvimento
-// Agora trabalhoController.getDadosPaginaDesenvolvimento vai ser encontrado
+// --- ROTAS DA PÁGINA DE DESENVOLVIMENTO ---
 router.get("/dados-dev", trabalhoController.getDadosPaginaDesenvolvimento);
-
-// Rota para CRIAR um novo registro na tabela
 router.post("/registros-dev", trabalhoController.createRegistro);
 
-// Rota para ATUALIZAR o link
+// --- ROTAS DE ARQUIVO E LINK ---
 router.put('/link', trabalhoController.atualizarLink);
-
-// Rota para fazer UPLOAD de um arquivo
 router.post('/upload', upload.single('arquivo'), trabalhoController.novaEntrega);
+
+// --- ROTA DA PÁGINA DE DEFINIR ORIENTADOR ---
+router.post('/solicitar-orientador', trabalhoController.solicitarOrientador);
+
 
 module.exports = router;
