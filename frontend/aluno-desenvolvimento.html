@@ -5,24 +5,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TC Manager - Desenvolvimento</title>
+    <!-- Bootstrap e ícones -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="css/styles.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container p-4">
+    <div class="container-pai">
+
+        <!-- Topo com botões e usuário -->
         <div class="top-bar d-flex justify-content-between align-items-center mb-3">
+
+            <!-- Botões principais -->
             <div class="d-flex gap-2 flex-grow-1">
-                <button type="button" class="btn btn-primary rounded-pill flex-fill">Definir Orientador</button>
-                <button type="button" class="btn btn-dark rounded-pill flex-fill">Desenvolvimento</button>
-                <button type="button" class="btn btn-primary rounded-pill flex-fill">Avaliação</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill"
+                    onclick="window.location.href='aluno-definir.html'">Definir Orientador</button>
+
+                <button type="button" class="btn btn-selected rounded-pill flex-fill">Desenvolvimento</button>
+
+                <button type="button" class="btn btn-primary rounded-pill flex-fill"
+                    onclick="window.location.href='aluno-avalicao.html'">Avaliação</button>
             </div>
+
+            <!-- Calendário -->
             <div class="ms-2 position-relative">
                 <input type="text" id="datepicker" class="form-control d-none">
                 <button type="button" class="btn btn-primary rounded-circle" id="calendarBtn"><i
                         class="bi bi-calendar-event"></i></button>
             </div>
+
+            <!-- Usuário -->
             <div class="ms-3">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
@@ -37,18 +52,21 @@
             </div>
         </div>
 
+        <!-- Conteúdo principal -->
         <div id="conteudo">
             <div class="row">
                 <div class="col-4">
+
+                    <!-- Primeiro Terço da Tela -->
                     <div class="d-flex flex-column mb-2">
                         <div class="d-flex align-items-center rounded-pill mb-2 p-2" style="background-color: #f1efef;">
-                            <button id="arquivo-btn" class="btn btn-sm btn-dark rounded-pill me-2 fw-bold"
+                            <button id="arquivo-btn" class="btn btn-sm btn-selected rounded-pill me-2 fw-bold"
                                 style="width: 100px;">Arquivo</button>
                             <span id="nome-arquivo-span" class="text-truncate">Nome do arquivo <i
                                     class="bi bi-file-earmark ms-2"></i></span>
                         </div>
                         <div class="d-flex align-items-center rounded-pill p-2" style="background-color: #f1efef;">
-                            <button id="link-btn" class="btn btn-sm btn-dark rounded-pill me-2 fw-bold"
+                            <button id="link-btn" class="btn btn-sm btn-selected rounded-pill me-2 fw-bold"
                                 style="width: 100px;">Link</button>
                             <span id="link-arquivo-span" class="text-truncate">Link do arquivo <i
                                     class="bi bi-link-45deg ms-2"></i></span>
@@ -82,6 +100,7 @@
                     </table>
                 </div>
 
+                <!-- Resto da Tela -->
                 <div class="col-8">
                     <table id="registros-table" class="table table-bordered text-center align-middle">
                         <thead>
@@ -109,157 +128,157 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <script>
-        // --- SELETORES DE ELEMENTOS ---
-        const tabelaParticipantesBody = document.querySelector("#info-participantes-table tbody");
-        const tabelaRegistrosBody = document.querySelector("#registros-table tbody");
-        const tipoInput = document.querySelector('input[placeholder="Tipo"]');
-        const dataInput = document.querySelector('input[type="date"]');
-        const criarBtn = document.querySelector('button.btn-success');
-        const spanNomeArquivo = document.getElementById('nome-arquivo-span');
-        const spanLink = document.getElementById('link-arquivo-span');
-        const btnArquivo = document.getElementById('arquivo-btn');
-        const btnLink = document.getElementById('link-btn');
-        const inputArquivo = document.createElement('input');
-        inputArquivo.type = 'file';
-        inputArquivo.style.display = 'none';
-        document.body.appendChild(inputArquivo);
+        <script>
+            // --- SELETORES DE ELEMENTOS ---
+            const tabelaParticipantesBody = document.querySelector("#info-participantes-table tbody");
+            const tabelaRegistrosBody = document.querySelector("#registros-table tbody");
+            const tipoInput = document.querySelector('input[placeholder="Tipo"]');
+            const dataInput = document.querySelector('input[type="date"]');
+            const criarBtn = document.querySelector('button.btn-success');
+            const spanNomeArquivo = document.getElementById('nome-arquivo-span');
+            const spanLink = document.getElementById('link-arquivo-span');
+            const btnArquivo = document.getElementById('arquivo-btn');
+            const btnLink = document.getElementById('link-btn');
+            const inputArquivo = document.createElement('input');
+            inputArquivo.type = 'file';
+            inputArquivo.style.display = 'none';
+            document.body.appendChild(inputArquivo);
 
-        // --- FUNÇÕES DE LÓGICA ---
-        function formatarData(dataString) {
-            if (!dataString) return 'N/A';
-            const data = new Date(dataString);
-            return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-        }
-
-        function preencherTela(data) {
-            const linhasParticipantes = tabelaParticipantesBody.querySelectorAll("tr");
-            const orientador = data.infoParticipantes.orientador;
-            if (orientador && linhasParticipantes[0]) {
-                linhasParticipantes[0].querySelectorAll("td")[1].textContent = `${orientador.nome} (${orientador.email})`;
-            }
-            const [banca1, banca2] = data.infoParticipantes.banca;
-            if (linhasParticipantes[1]) {
-                linhasParticipantes[1].querySelectorAll("td")[1].textContent = banca1 || 'Não definido';
-            }
-            if (linhasParticipantes[2]) {
-                linhasParticipantes[2].querySelectorAll("td")[1].textContent = banca2 || 'Não definido';
+            // --- FUNÇÕES DE LÓGICA ---
+            function formatarData(dataString) {
+                if (!dataString) return 'N/A';
+                const data = new Date(dataString);
+                return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
             }
 
-            const dadosPrincipais = data.dadosPrincipais;
-            if (dadosPrincipais && linhasParticipantes[3]) {
-                const nomeCoord = dadosPrincipais.nome_coordenador;
-                const emailCoord = dadosPrincipais.email_coordenador;
-                linhasParticipantes[3].querySelectorAll("td")[1].textContent = `${nomeCoord} (${emailCoord})`;
-            } if (dadosPrincipais) {
-                if (dadosPrincipais.link_repositorio) {
-                    spanLink.innerHTML = `<a href="${dadosPrincipais.link_repositorio}" target="_blank">${dadosPrincipais.link_repositorio}</a>`;
-                } else {
-                    spanLink.textContent = 'Link do arquivo';
+            function preencherTela(data) {
+                const linhasParticipantes = tabelaParticipantesBody.querySelectorAll("tr");
+                const orientador = data.infoParticipantes.orientador;
+                if (orientador && linhasParticipantes[0]) {
+                    linhasParticipantes[0].querySelectorAll("td")[1].textContent = `${orientador.nome} (${orientador.email})`;
                 }
-                if (dadosPrincipais.ultimo_arquivo) {
-                    const nomeArquivo = dadosPrincipais.ultimo_arquivo.split(/[\\/]/).pop();
-                    const urlArquivo = `http://localhost:3000/${dadosPrincipais.ultimo_arquivo.replace(/\\/g, '/')}`;
-                    spanNomeArquivo.innerHTML = `<a href="${urlArquivo}" target="_blank">${nomeArquivo}</a>`;
-                } else {
-                    spanNomeArquivo.textContent = 'Nome do arquivo';
+                const [banca1, banca2] = data.infoParticipantes.banca;
+                if (linhasParticipantes[1]) {
+                    linhasParticipantes[1].querySelectorAll("td")[1].textContent = banca1 || 'Não definido';
                 }
-            }
+                if (linhasParticipantes[2]) {
+                    linhasParticipantes[2].querySelectorAll("td")[1].textContent = banca2 || 'Não definido';
+                }
 
-            tabelaRegistrosBody.innerHTML = '';
-            if (data.registros.length === 0) {
-                tabelaRegistrosBody.innerHTML = '<tr><td colspan="3">Nenhum registro adicionado.</td></tr>';
-            } else {
-                data.registros.forEach(reg => {
-                    tabelaRegistrosBody.innerHTML += `<tr><td>${reg.tipo}</td><td>${formatarData(reg.data)}</td><td>${reg.status}</td></tr>`;
-                });
-            }
-        }
+                const dadosPrincipais = data.dadosPrincipais;
+                if (dadosPrincipais && linhasParticipantes[3]) {
+                    const nomeCoord = dadosPrincipais.nome_coordenador;
+                    const emailCoord = dadosPrincipais.email_coordenador;
+                    linhasParticipantes[3].querySelectorAll("td")[1].textContent = `${nomeCoord} (${emailCoord})`;
+                } if (dadosPrincipais) {
+                    if (dadosPrincipais.link_repositorio) {
+                        spanLink.innerHTML = `<a href="${dadosPrincipais.link_repositorio}" target="_blank">${dadosPrincipais.link_repositorio}</a>`;
+                    } else {
+                        spanLink.textContent = 'Link do arquivo';
+                    }
+                    if (dadosPrincipais.ultimo_arquivo) {
+                        const nomeArquivo = dadosPrincipais.ultimo_arquivo.split(/[\\/]/).pop();
+                        const urlArquivo = `http://localhost:3000/${dadosPrincipais.ultimo_arquivo.replace(/\\/g, '/')}`;
+                        spanNomeArquivo.innerHTML = `<a href="${urlArquivo}" target="_blank">${nomeArquivo}</a>`;
+                    } else {
+                        spanNomeArquivo.textContent = 'Nome do arquivo';
+                    }
+                }
 
-        async function carregarDadosPagina() {
-            try {
-                // ROTA ATUALIZADA
-                const response = await fetch('http://localhost:3000/trabalhos/dados-dev');
-                if (!response.ok) throw new Error('Falha na resposta do servidor: ' + response.status);
-                const data = await response.json();
-                preencherTela(data);
-            } catch (error) {
-                console.error('Falha na requisição:', error);
-                tabelaRegistrosBody.innerHTML = '<tr><td colspan="3" class="text-danger">Não foi possível carregar os dados.</td></tr>';
-            }
-        }
-
-        async function criarNovoRegistro() {
-            const tipo = tipoInput.value;
-            const data = dataInput.value;
-            if (!tipo || !data) return alert("Por favor, preencha o tipo e a data.");
-
-            try {
-                // ROTA ATUALIZADA
-                const response = await fetch('http://localhost:3000/trabalhos/registros-dev', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tipo, data })
-                });
-                if (!response.ok) throw new Error('Falha ao criar o registro.');
-                alert("Registro criado com sucesso!");
-                tipoInput.value = '';
-                dataInput.value = '';
-                carregarDadosPagina();
-            } catch (error) {
-                console.error('Erro ao criar registro:', error);
-                alert('Não foi possível criar o registro.');
-            }
-        }
-
-        async function atualizarLink() {
-            const novoLink = prompt("Digite o link do seu repositório:", "https://");
-            if (novoLink && novoLink.trim() !== 'https://') {
-                try {
-                    const response = await fetch('http://localhost:3000/trabalhos/link', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ link: novoLink })
+                tabelaRegistrosBody.innerHTML = '';
+                if (data.registros.length === 0) {
+                    tabelaRegistrosBody.innerHTML = '<tr><td colspan="3">Nenhum registro adicionado.</td></tr>';
+                } else {
+                    data.registros.forEach(reg => {
+                        tabelaRegistrosBody.innerHTML += `<tr><td>${reg.tipo}</td><td>${formatarData(reg.data)}</td><td>${reg.status}</td></tr>`;
                     });
-                    if (!response.ok) throw new Error((await response.json()).message);
-                    alert("Link atualizado!");
+                }
+            }
+
+            async function carregarDadosPagina() {
+                try {
+                    // ROTA ATUALIZADA
+                    const response = await fetch('http://localhost:3000/trabalhos/dados-dev');
+                    if (!response.ok) throw new Error('Falha na resposta do servidor: ' + response.status);
+                    const data = await response.json();
+                    preencherTela(data);
+                } catch (error) {
+                    console.error('Falha na requisição:', error);
+                    tabelaRegistrosBody.innerHTML = '<tr><td colspan="3" class="text-danger">Não foi possível carregar os dados.</td></tr>';
+                }
+            }
+
+            async function criarNovoRegistro() {
+                const tipo = tipoInput.value;
+                const data = dataInput.value;
+                if (!tipo || !data) return alert("Por favor, preencha o tipo e a data.");
+
+                try {
+                    // ROTA ATUALIZADA
+                    const response = await fetch('http://localhost:3000/trabalhos/registros-dev', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tipo, data })
+                    });
+                    if (!response.ok) throw new Error('Falha ao criar o registro.');
+                    alert("Registro criado com sucesso!");
+                    tipoInput.value = '';
+                    dataInput.value = '';
                     carregarDadosPagina();
                 } catch (error) {
-                    alert("Erro ao atualizar o link: " + error.message);
+                    console.error('Erro ao criar registro:', error);
+                    alert('Não foi possível criar o registro.');
                 }
             }
-        }
 
-        async function uploadArquivo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('arquivo', file);
-            try {
-                const response = await fetch('http://localhost:3000/trabalhos/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!response.ok) throw new Error((await response.json()).message);
-                alert("Upload realizado com sucesso!");
-                carregarDadosPagina();
-            } catch (error) {
-                alert("Erro no upload: " + error.message);
+            async function atualizarLink() {
+                const novoLink = prompt("Digite o link do seu repositório:", "https://");
+                if (novoLink && novoLink.trim() !== 'https://') {
+                    try {
+                        const response = await fetch('http://localhost:3000/trabalhos/link', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ link: novoLink })
+                        });
+                        if (!response.ok) throw new Error((await response.json()).message);
+                        alert("Link atualizado!");
+                        carregarDadosPagina();
+                    } catch (error) {
+                        alert("Erro ao atualizar o link: " + error.message);
+                    }
+                }
             }
-        }
 
-        // --- INICIALIZAÇÃO E EVENTOS ---
-        document.addEventListener('DOMContentLoaded', carregarDadosPagina);
-        criarBtn.addEventListener('click', criarNovoRegistro);
-        btnLink.addEventListener('click', atualizarLink);
-        btnArquivo.addEventListener('click', () => inputArquivo.click());
-        inputArquivo.addEventListener('change', uploadArquivo);
-    </script>
+            async function uploadArquivo(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('arquivo', file);
+                try {
+                    const response = await fetch('http://localhost:3000/trabalhos/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error((await response.json()).message);
+                    alert("Upload realizado com sucesso!");
+                    carregarDadosPagina();
+                } catch (error) {
+                    alert("Erro no upload: " + error.message);
+                }
+            }
+
+            // --- INICIALIZAÇÃO E EVENTOS ---
+            document.addEventListener('DOMContentLoaded', carregarDadosPagina);
+            criarBtn.addEventListener('click', criarNovoRegistro);
+            btnLink.addEventListener('click', atualizarLink);
+            btnArquivo.addEventListener('click', () => inputArquivo.click());
+            inputArquivo.addEventListener('change', uploadArquivo);
+        </script>
+    </div>
 </body>
 
 </html>
