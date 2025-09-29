@@ -27,7 +27,7 @@
                 <button type="button" class="btn btn-selected rounded-pill flex-fill">Desenvolvimento</button>
 
                 <button type="button" class="btn btn-primary rounded-pill flex-fill"
-                    onclick="window.location.href='aluno-avalicao.html'">Avaliação</button>
+                    onclick="window.location.href='aluno-avaliacao.html'">Avaliação</button>
             </div>
 
             <!-- Calendário -->
@@ -42,7 +42,8 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> João
+                        <i class="bi bi-person-circle"></i>
+                        <span id="nome-usuario">Carregando...</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -200,9 +201,21 @@
             }
 
             async function carregarDadosPagina() {
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
                 try {
                     // ROTA ATUALIZADA
-                    const response = await fetch('http://localhost:3000/trabalhos/dados-dev');
+                    const response = await fetch('http://localhost:3000/trabalhos/dados-dev', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });;
+                    
                     if (!response.ok) throw new Error('Falha na resposta do servidor: ' + response.status);
                     const data = await response.json();
                     preencherTela(data);
@@ -271,8 +284,20 @@
                 }
             }
 
+            function carregarNomeUsuario() {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                const nomeUsuarioEl = document.getElementById('nome-usuario');
+                if (nomeUsuarioEl) {
+                    nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
+                }
+            }
+
             // --- INICIALIZAÇÃO E EVENTOS ---
-            document.addEventListener('DOMContentLoaded', carregarDadosPagina);
+            document.addEventListener('DOMContentLoaded', () => {
+                carregarDadosPagina();
+                carregarNomeUsuario();
+            });
+
             criarBtn.addEventListener('click', criarNovoRegistro);
             btnLink.addEventListener('click', atualizarLink);
             btnArquivo.addEventListener('click', () => inputArquivo.click());
