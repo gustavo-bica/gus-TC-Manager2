@@ -45,7 +45,7 @@ const Desenvolvimento = {
         SELECT
             assunto_discutido AS tipo,
             data_reuniao AS data,
-            status  -- <-- CORREÇÃO: Trocamos 'Realizada' AS status por esta linha
+            'Realizada' AS status  
         FROM ORIENTACOES
         WHERE id_trabalho = ?
         ORDER BY data_reuniao DESC;
