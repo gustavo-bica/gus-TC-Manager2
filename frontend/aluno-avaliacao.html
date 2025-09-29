@@ -14,6 +14,10 @@
 </head>
 
 <body>
+
+    <input type="file" id="input-arquivo" style="display: none;">
+    <div class="container-pai">
+
     <div class="container-pai">
         <!-- Topo com botões e usuário -->
         <div class="top-bar d-flex justify-content-between align-items-center mb-3">
@@ -58,7 +62,7 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
                         <li><a class="dropdown-item" href="#">Configurações</a></li>
-                        <li><a class="dropdown-item" href="#">Sair</a></li>
+                        <li><a class="dropdown-item" id="btn-logout" href="#">Sair</a></li>
                     </ul>
                 </div>
             </div>
@@ -82,9 +86,9 @@
 
                         <!-- Linha 2 -->
                         <div class="d-flex align-items-center rounded-pill mb-2" style="background-color: #f1efef;">
-                            <button class="btn btn-sm btn-selected rounded-pill me-3"
+                            <button id="btn-selecionar-arquivo" class="btn btn-sm btn-selected rounded-pill me-3"
                                 style="width: 150px;">Arquivo</button>
-                            <span id="nome-arquivo" class="fw-bold">Nenhum arquivo enviado</span>
+                            <span id="nome-arquivo" class="fw-bold">Sem arquivo enviado</span>
                         </div>
                     </div>
 
@@ -157,6 +161,30 @@
             document.addEventListener('DOMContentLoaded', () => {
                 carregarNomeUsuario();
                 carregarDadosAvaliacao();
+
+                const btnSelecionarArquivo = document.getElementById('btn-selecionar-arquivo');
+                const inputArquivoEscondido = document.getElementById('input-arquivo');
+                const spanNomeArquivo = document.getElementById('nome-arquivo');
+
+                btnSelecionarArquivo.addEventListener('click', () => { 
+                    inputArquivoEscondido.click();
+                });
+
+                inputArquivoEscondido.addEventListener('change', () => {
+                    if (inputArquivoEscondido.files.length > 0) {
+                        const nomeDoArquivo = inputArquivoEscondido.files[0].name;
+                        spanNomeArquivo.textContent = nomeDoArquivo;
+                    }
+                });
+
+                const btnLogout = document.getElementById('btn-logout');
+                if (btnLogout) {
+                    btnLogout.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        logout();
+                    });
+                }
+
             });
 
             let cronometroInterval;
@@ -167,6 +195,11 @@
                 if (nomeUsuarioEl) {
                     nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
                 }
+            }
+
+            function logout() {
+                localStorage.clear();
+                window.location.href = 'index.html';
             }
 
             async function carregarDadosAvaliacao() {

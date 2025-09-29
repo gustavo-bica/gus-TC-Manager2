@@ -37,7 +37,7 @@ const trabalhoController = {
                 id_trabalho: trabalho.id_trabalho,
                 assunto_discutido: tipo,
                 data_reuniao: data,
-                status: 'Realizada'
+                // status: 'Realizada'
             };
             await Desenvolvimento.createRegistro(novoRegistro);
             res.status(201).json({ message: "Registro criado com sucesso!" });

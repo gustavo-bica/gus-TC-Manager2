@@ -27,7 +27,7 @@
                     <span id="nome-usuario">Carregando...</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">Sair</a></li>
+                    <li><a class="dropdown-item" id="btn-logout" href="#">Sair</a></li>
                 </ul>
             </div>
         </div>
@@ -56,81 +56,113 @@
     <script>
         const tabelaBody = document.querySelector("#conteudo > table > tbody");
 
-        async function solicitarOrientador(idOrientador, botaoClicado) {
-            if (!confirm("Tem certeza que deseja solicitar este orientador?")) return;
-            try {
-                const response = await fetch('http://localhost:3000/alunos/solicitar-orientador', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id_orientador: idOrientador })
-                });
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.message || "Não foi possível processar a solicitação.");
-                }
-                alert("Solicitação enviada com sucesso!");
-                document.querySelectorAll('.solicitar-btn').forEach(btn => {
-                    btn.disabled = true;
-                });
-                botaoClicado.textContent = "Solicitado";
-                botaoClicado.classList.replace('btn-success', 'btn-secondary');
-            } catch (error) {
-                alert("Erro: " + error.message);
+    
+    async function solicitarOrientador(idOrientador, botaoClicado) {
+        if (!confirm("Tem certeza que deseja solicitar este orientador?")) return;
+
+        const token = localStorage.getItem('authToken');
+
+        try {
+            const response = await fetch('http://localhost:3000/alunos/solicitar-orientador', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ id_orientador: idOrientador })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || "Não foi possível processar a solicitação.");
             }
+
+            alert("Solicitação enviada com sucesso!");
+            document.querySelectorAll('.solicitar-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = "Aguarde";
+            });
+            botaoClicado.textContent = "Solicitado";
+            botaoClicado.classList.replace('btn-success', 'btn-secondary');
+
+        } catch (error) {
+            alert("Erro: " + error.message);
         }
+    }
 
-        async function carregarOrientadores() {
-            try {
-                const response = await fetch('http://localhost:3000/professores');
-                if (!response.ok) throw new Error("Não foi possível carregar a lista de orientadores. Verifique o backend.");
-                
-                const orientadores = await response.json();
-                tabelaBody.innerHTML = ''; 
+    async function carregarOrientadores() {
+        const token = localStorage.getItem('authToken'); 
 
-                if (orientadores.length === 0) {
-                    tabelaBody.innerHTML = '<tr><td colspan="4">Nenhum orientador disponível.</td></tr>';
-                    return;
-                }
+        try {
+            const response = await fetch('http://localhost:3000/professores', {
+                headers: { 'Authorization': `Bearer ${token}` } // Envia o token
+            });
 
-                orientadores.forEach(prof => {
-                    const linha = `
-                        <tr>
-                            <td>${prof.nome}</td>
-                            <td>${prof.total_orientandos}</td>
-                            <td>${prof.email}</td>
-                            <td>
-                                <button class="btn btn-success solicitar-btn" data-id="${prof.id_usuario}">
-                                    Solicitar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    tabelaBody.innerHTML += linha;
-                });
-            } catch (error) {
-                tabelaBody.innerHTML = `<tr><td colspan="4" class="text-danger">${error.message}</td></tr>`;
+            if (!response.ok) throw new Error("Não foi possível carregar a lista de orientadores.");
+            
+            const orientadores = await response.json();
+            tabelaBody.innerHTML = '';
+
+            if (orientadores.length === 0) {
+                tabelaBody.innerHTML = '<tr><td colspan="4">Nenhum orientador disponível.</td></tr>';
+                return;
             }
+
+            orientadores.forEach(prof => {
+                const linha = `
+                    <tr>
+                        <td>${prof.nome}</td>
+                        <td>${prof.total_orientandos}</td>
+                        <td>${prof.email}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm solicitar-btn" data-id="${prof.id_usuario}">
+                                Solicitar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tabelaBody.innerHTML += linha;
+            });
+        } catch (error) {
+            tabelaBody.innerHTML = `<tr><td colspan="4" class="text-danger">${error.message}</td></tr>`;
         }
-        
-        tabelaBody.addEventListener('click', function(event) {
-            if (event.target && event.target.classList.contains('solicitar-btn')) {
-                const idOrientador = event.target.dataset.id;
-                solicitarOrientador(idOrientador, event.target);
-            }
-        });
+    }
+    
+    
+    tabelaBody.addEventListener('click', function(event) {
+        if (event.target && event.target.classList.contains('solicitar-btn')) {
+            const idOrientador = event.target.dataset.id;
+            solicitarOrientador(idOrientador, event.target);
+        }
+    });
 
-        function carregarNomeUsuario() {
-                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-                const nomeUsuarioEl = document.getElementById('nome-usuario');
-                if (nomeUsuarioEl) {
-                    nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
-                }
-            }
+    
+    function carregarNomeUsuario() {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const nomeUsuarioEl = document.getElementById('nome-usuario');
+        if (nomeUsuarioEl) {
+            nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
+        }
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarOrientadores();
-            carregarNomeUsuario();
-        });
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        carregarOrientadores();
+        carregarNomeUsuario();
+
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', (event) => {
+                event.preventDefault();
+                logout();
+            });
+        }
+    });
 
     </script>
 </body>

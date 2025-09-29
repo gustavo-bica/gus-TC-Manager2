@@ -14,4 +14,11 @@ router.get(
     alunoController.getMinhaAvaliacao
 );
 
+router.post(
+    "/solicita-orientador",
+    authMiddleware,
+    authorize(['aluno']),
+    alunoController.solicitaOrientador
+);
+
 module.exports = router;
