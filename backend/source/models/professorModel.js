@@ -15,7 +15,25 @@ const Professor = {
     const [rows] = await db.execute(query);
     return rows;
   },
-  // ... (outras funções do professor, como listarSolicitacoesPendentes)
+  
+  listarSolicitacoesPendentes: async (idProfessor) => {
+    const query = `
+        SELECT 
+            t.id_trabalho,
+            a.nome AS nome_aluno,
+            t.titulo AS titulo_trabalho
+        FROM 
+            trabalhos AS t
+        JOIN 
+            usuarios AS a ON t.id_aluno = a.id_usuario
+        WHERE 
+            t.id_orientador = ? AND t.id_status = 2; 
+        `;
+        
+    const [rows] = await db.execute(query, [idProfessor]);
+    return rows;
+  }
+
 };
 
 module.exports = Professor;

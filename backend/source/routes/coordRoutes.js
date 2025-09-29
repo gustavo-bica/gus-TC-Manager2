@@ -7,8 +7,8 @@ const { authMiddleware, authorize } = require("../middlewares/authMiddleware");
 router.get(
     "/agenda",
     authMiddleware, 
-    authorize(['coordenador']), // <-- apenas coordenador é permitido
-    coordController.getAgenda
+    authorize(['coordenador']),
+    coordController.getAgendaCompleta
 );
 
 router.get(
@@ -16,6 +16,13 @@ router.get(
     authMiddleware,
     authorize(['coordenador']),
     coordController.getBancas
+);
+
+router.post(
+    "/trabalhos/:idTrabalho/definir-banca",
+    authMiddleware,
+    authorize(['coordenador']),
+    coordController.definirBanca
 );
 
 module.exports = router;

@@ -14,7 +14,7 @@ const professorController = {
     // Para o professor ver suas solicitações pendentes
     verSolicitacoes: async (req, res, next) => {
         try {
-            const idProfessor = 3; // Fixo para teste (Prof. Lima)
+            const idProfessor = req.user.id;
             const solicitacoes = await Professor.listarSolicitacoesPendentes(idProfessor);
             res.status(200).json(solicitacoes);
         } catch (err) { next(err); }

@@ -94,6 +94,39 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modal-gerenciar-banca" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalLabel">Gerenciar Banca</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="id-trabalho-modal">
+                    
+                    <h6>Membros da Banca</h6>
+                    <div id="lista-professores-modal" class="mb-3 border p-2 rounded" style="max-height: 150px; overflow-y: auto;">
+                        Carregando professores...
+                    </div>
+
+                    <h6>Agendamento</h6>
+                    <div class="mb-3">
+                        <label for="data-hora-banca" class="form-label">Data e Hora</label>
+                        <input type="datetime-local" class="form-control" id="data-hora-banca">
+                    </div>
+                    <div class="mb-3">
+                        <label for="local-banca" class="form-label">Local (Sala ou Link)</label>
+                        <input type="text" class="form-control" id="local-banca" placeholder="Ex: Sala 302 ou Link do Meet">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-banca">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -107,10 +140,23 @@
         });
         document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
     </script>
+
     <script>
+
+        let bancaModal = null;
+        let idTrabalhoAtual = null;
+
         document.addEventListener('DOMContentLoaded', () => {
+
+            const modalEl = document.getElementById('modal-gerenciar-banca');
+            if (modalEl) {
+                bancaModal = new bootstrap.Modal(modalEl);
+            }
+
             carregarNomeUsuario();
             carregarDadosAgenda();
+
+            document.getElementById('btn-salvar-banca').addEventListener('click', salvarBanca);
         });
 
         function carregarNomeUsuario() {
@@ -164,26 +210,129 @@
                     trabalhos.forEach(trabalho => { 
                         const row = document.createElement('tr');
 
+                        let infoBanca = '';
+                        if (trabalho.membros_banca) {
+                            const dataFormatada = new Date(trabalho.data_hora).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                            
+                            infoBanca = `
+                                <small>
+                                    <strong>Membros:</strong> ${trabalho.membros_banca}<br>
+                                    <strong>Data:</strong> ${dataFormatada}<br>
+                                    <strong>Local:</strong> ${trabalho.local}
+                                </small>
+                            `;
+                        } else { 
+                            infoBanca = '<span class="text-muted">Não definida</span>';
+                        }
+
                         row.innerHTML = `
                             <td>${trabalho.nome_aluno}</td>
                             <td>${trabalho.nome_orientador}</td>
                             <td><span class="badge bg-primary">${trabalho.status}</span></td>
                             <td>
-                                <button class="btn btn-info btn-sm">
-                                    <i class="bi bi-calendar-plus"></i> Agendar
+                                ${infoBanca}
+                                <hr class="my-1">
+                                <button class="btn btn-info btn-sm gerenciar-banca-btn" data-id="${trabalho.id_trabalho}">
+                                    <i class="bi bi-pencil-square"></i> Gerenciar
                                 </button>
                             </td>
                         `;
                         tbody.appendChild(row);
                     });
                 }
+
+                document.querySelectorAll('.gerenciar-banca-btn').forEach(btn => {
+                    btn.addEventListener('click', (event) => {
+                        const idTrabalho = event.currentTarget.dataset.id;
+                        abrirModalGerenciarBanca(idTrabalho);
+                    });
+                });
+
             } catch (error) {
                 console.error("Err oao buscar dados da agenda:", error);
                 tbody.innerHTML = '<tr><td colspan="4" class="text-danger">Falha ao carregar os dados. Verifique a conexão com o servidor.</td></tr>'
             }
         }
 
+        async function abrirModalGerenciarBanca(idTrabalho) {
+            idTrabalhoAtual = idTrabalho; // salva o ID do trabalho que está sendo editado
+            const token = localStorage.getItem('authToken');
+            const listaProfessoresDiv = document.getElementById('lista-professores-modal');
+            listaProfessoresDiv.innerHTML = 'Carregando professores...';
+
+            try {
+                // busca a lista de todos os professores para preencher os checkboxes
+                const response = await fetch('http://localhost:3000/professores', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) { throw new Error('Falha ao buscar professores'); }
+                
+                const professores = await response.json();
+                listaProfessoresDiv.innerHTML = '';
+
+                professores.forEach(prof => {
+                    listaProfessoresDiv.innerHTML += `
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="${prof.id_usuario}" id="prof-${prof.id_usuario}">
+                            <label class="form-check-label" for="prof-${prof.id_usuario}">
+                                ${prof.nome}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                bancaModal.show();
+
+            } catch(error) {
+                listaProfessoresDiv.innerHTML = '<span class="text-danger">Erro ao carregar professores.</span>';
+            }
+        }
+
+        async function salvarBanca() {
+            const token = localStorage.getItem('authToken');
+            const data_hora = document.getElementById('data-hora-banca').value;
+            const local = document.getElementById('local-banca').value;
+            
+            const membrosSelecionados = [];
+            document.querySelectorAll('#lista-professores-modal input[type="checkbox"]:checked').forEach(checkbox => {
+                membrosSelecionados.push(checkbox.value);
+            });
+
+            if (!data_hora || !local || membrosSelecionados.length === 0) {
+                alert('Por favor, preencha a data/hora, o local e selecione pelo menos um membro para a banca.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/coordenador/trabalhos/${idTrabalhoAtual}/definir-banca`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data_hora: data_hora,
+                        local: local,
+                        membros: membrosSelecionados
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || 'Erro ao salvar a banca.');
+                }
+
+                alert('Banca definida com sucesso!');
+                bancaModal.hide();
+                carregarDadosAgenda(); // recarrega a tabela principal com os novos dados
+
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+
     </script>
+
 </body>
 
 </html>

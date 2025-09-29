@@ -1,159 +1,126 @@
 <!doctype html>
 <html lang="pt-br">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tela Pai</title>
+    <title>Solicitações de Orientação</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="css/styles.css" rel="stylesheet">
 </head>
-
 <body>
-
     <div class="container-pai">
-        <!-- Topo com botões e nome do usuário -->
         <div class="top-bar d-flex justify-content-between align-items-center mb-3">
-            <!-- Botões com largura igual -->
             <div class="d-flex gap-2 flex-grow-1">
                 <button type="button" class="btn btn-selected rounded-pill flex-fill">Definir Orientador</button>
-
-                <button type="button" class="btn btn-primary rounded-pill flex-fill"
-                    onclick="window.location.href='orientador-desenvolvimento.html'">Desenvolvimento</button>
-
-                <button type="button" class="btn btn-primary rounded-pill flex-fill"
-                    onclick="window.location.href='orientador-avalicao.html'">Avaliação</button>
+                 <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='orientador-desenvolvimento.html'">Desenvolvimento</button>
+                 <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='orientador-avaliacao.html'">Avaliação</button>
             </div>
-
-            <!-- Botão de calendário  -->
-            <div class="ms-2">
-                <button type="button" class="btn btn-primary rounded-circle">
-                    <i class="bi bi-calendar-event"></i>
+            <div class="ms-3 dropdown">
+                <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i>
+                    <span id="nome-usuario">Carregando...</span>
                 </button>
-            </div>
-
-            <div class="ms-3">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
-                        id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i>
-                        <span id="nome-usuario">Carregando...</span>
-                    </button>
-
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
-                        <li><a class="dropdown-item" href="#">Perfil</a></li>
-                        <li><a class="dropdown-item" href="#">Configurações</a></li>
-                        <li><a class="dropdown-item" href="#">Sair</a></li>
-                    </ul>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" id="btn-logout" href="#">Sair</a></li>
+                </ul>
             </div>
         </div>
 
-        <!-- Conteúdo principal que vai mudar nas telas filhas -->
         <div id="conteudo">
             <table class="table table-bordered text-center align-middle">
-                    <th colspan="4" class="text-white text-start fs-5 bg-primary">Possíveis Orientados</th>
+                <thead>
+                    <tr>
+                        <th colspan="3" class="text-white text-start fs-5 bg-primary">Solicitações de Orientação Pendentes</th>
                     </tr>
                     <tr class="bg-info text-dark">
-                        <th style="width: 35%;">Alunos</th>
-                        <th style="width: 15%;">Matricula</th>
-                        <th style="width: 30%;">Email</th>
-                        <th style="width: 20%;">Solicitação</th>
+                        <th style="width: 40%;">Aluno</th>
+                        <th style="width: 40%;">Título do Trabalho</th>
+                        <th style="width: 20%;">Ações</th>
                     </tr>
                 </thead>
-                <tbody id="tabelaUsuariosBody">
-                    <tr>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                    </tr>
-                    <tr>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                    </tr>
+                <tbody id="tabela-solicitacoes-body">
+                    <tr><td colspan="3">Carregando solicitações...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-        carregarTabelaPossiveisOrientandos();
-        carregarNomeUsuario();
-    });
+        const token = localStorage.getItem('authToken');
+        const tabelaBody = document.getElementById('tabela-solicitacoes-body');
 
-    function carregarNomeUsuario() {
+        async function carregarSolicitacoes() {
+            if (!token) { window.location.href = 'index.html'; return; }
+            tabelaBody.innerHTML = '<tr><td colspan="3">Carregando...</td></tr>';
+            try {
+                const response = await fetch('http://localhost:3000/professores/solicitacoes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Falha ao carregar solicitações.');
+                const solicitacoes = await response.json();
+                tabelaBody.innerHTML = '';
+                if (solicitacoes.length === 0) {
+                    tabelaBody.innerHTML = '<tr><td colspan="3">Nenhuma solicitação pendente.</td></tr>';
+                } else {
+                    solicitacoes.forEach(item => {
+                        const row = tabelaBody.insertRow();
+                        row.innerHTML = `
+                            <td>${item.nome_aluno}</td>
+                            <td>${item.titulo_trabalho}</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="responderSolicitacao(${item.id_trabalho}, 'aceitar')">Aceitar</button>
+                                <button class="btn btn-danger btn-sm" onclick="responderSolicitacao(${item.id_trabalho}, 'recusar')">Recusar</button>
+                            </td>
+                        `;
+                    });
+                }
+            } catch (error) {
+                tabelaBody.innerHTML = `<tr><td colspan="3" class="text-danger">${error.message}</td></tr>`;
+            }
+        }
+
+        async function responderSolicitacao(idTrabalho, acao) {
+            const confirmMsg = acao === 'aceitar' ? "Tem certeza que deseja ACEITAR esta orientação?" : "Tem certeza que deseja RECUSAR esta orientação?";
+            if (!confirm(confirmMsg)) return;
+            const token = localStorage.getItem('authToken'); // Pega o token aqui
+            try {
+                // Usa crases (`) na URL
+                const response = await fetch(`http://localhost:3000/professores/trabalhos/${idTrabalho}/${acao}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+                alert(result.message);
+                carregarSolicitacoes();
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
+        }
+
+        function carregarNomeUsuario() {
             const userInfo = JSON.parse(localStorage.getItem('userInfo'));
             const nomeUsuarioEl = document.getElementById('nome-usuario');
-            if (userInfo && userInfo.nome) {
-                nomeUsuarioEl.textContent = userInfo.nome;
-            } else {
-                nomeUsuarioEl.textContent = 'Usuário';
+            if (nomeUsuarioEl) {
+                nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Professor';
             }
         }
 
-    async function carregarTabelaPossiveisOrientandos() {
-        const token = localStorage.getItem('authToken');
-        const tbody = document.getElementById('tabelaUsuariosBody');
-        
-        if (!tbody) { return; }
-        tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
-
-        if (!token) {
+        function logout() {
+            localStorage.clear();
             window.location.href = 'index.html';
-            return;
         }
 
-        try {
-        
-            const response = await fetch('http://localhost:3000/orientador/possiveis-orientandos', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-                return;
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarSolicitacoes();
+            carregarNomeUsuario();
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', (e) => { e.preventDefault(); logout(); });
             }
-
-            const alunos = await response.json();
-            tbody.innerHTML = '';
-
-            if (alunos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4">Nenhum aluno sem orientador no momento.</td></tr>';
-            } else {
-                alunos.forEach(aluno => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${aluno.nome}</td>
-                        <td>${aluno.matricula}</td>
-                        <td>${aluno.email}</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">Aceitar</button>
-                            <button class="btn btn-danger btn-sm">Recusar</button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-        } catch (error) {
-            console.error('Erro ao buscar possíveis orientandos:', error);
-            tbody.innerHTML = '<tr><td colspan="4" class="text-danger">Falha ao carregar os dados.</td></tr>';
-        }
-    }
+        });
     </script>
 </body>
-
 </html>
