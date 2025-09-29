@@ -19,11 +19,12 @@
             <div class="d-flex gap-2 flex-grow-1">
                 <button type="button" class="btn btn-selected rounded-pill flex-fill">Definir Orientador</button>
                 <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='aluno-desenvolvimento.html'">Desenvolvimento</button>
-                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='aluno-avalicao.html'">Avaliação</button>
+                <button type="button" class="btn btn-primary rounded-pill flex-fill" onclick="window.location.href='aluno-avaliacao.html'">Avaliação</button>
             </div>
             <div class="ms-3 dropdown">
                 <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i> João
+                    <i class="bi bi-person-circle"></i>
+                    <span id="nome-usuario">Carregando...</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="#">Sair</a></li>
@@ -118,7 +119,19 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', carregarOrientadores);
+        function carregarNomeUsuario() {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                const nomeUsuarioEl = document.getElementById('nome-usuario');
+                if (nomeUsuarioEl) {
+                    nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
+                }
+            }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarOrientadores();
+            carregarNomeUsuario();
+        });
+
     </script>
 </body>
 </html>

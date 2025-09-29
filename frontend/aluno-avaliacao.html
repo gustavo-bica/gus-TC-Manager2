@@ -156,7 +156,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 carregarNomeUsuario();
-                carregarDadosAvalicao();
+                carregarDadosAvaliacao();
             });
 
             let cronometroInterval;
@@ -169,7 +169,7 @@
                 }
             }
 
-            async function carregarDadosAvalicao() {
+            async function carregarDadosAvaliacao() {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     window.location.href = 'index.html';

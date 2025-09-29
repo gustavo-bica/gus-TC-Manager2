@@ -56,7 +56,9 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
                         id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> Marcia
+                        <i class="bi bi-person-circle"></i>
+                        <span id="nome-usuario">Carregando...</span>
+                        
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -109,9 +111,39 @@
 
     <script>
 
+        document.addEventListener('DOMContentLoaded', () => {
+                carregarNomeUsuario();
+                carregarTabela();
+            });
+
+        function carregarNomeUsuario() {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                const nomeUsuarioEl = document.getElementById('nome-usuario');
+                if (nomeUsuarioEl) {
+                    nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
+                }
+            }
+
         async function carregarTabela() {
+
+        const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
             try {
-                const res = await fetch("http://localhost:3000/alunos");
+                const res = await fetch("http://localhost:3000/alunos", () => {
+                    headers =  { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                        return;
+                }
+
+
                 const dados = await res.json();
 
                 const tbody = document.getElementById("tabelaUsuariosBody");
@@ -140,8 +172,6 @@
             }
         }
 
-        // carrega a tabela ao abrir a página
-        window.onload = carregarTabela;
     </script>
 </body>
 
