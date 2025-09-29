@@ -35,3 +35,31 @@ exports.getMeusOrientandos = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getAlunosSemOrientador = async (req, res, next) => {
+    try {
+        
+        const query = `
+            SELECT 
+                t.id_trabalho,
+                u.nome,
+                u.matricula,
+                u.email
+            FROM 
+                trabalhos AS t
+            JOIN 
+                usuarios AS u ON t.id_aluno = u.id_usuario
+            WHERE 
+                t.id_orientador IS NULL
+            ORDER BY
+                u.nome ASC;
+        `;
+
+        const [alunos] = await db.query(query);
+        res.json(alunos);
+
+    } catch (error) {
+        console.error("Erro ao buscar alunos sem orientador:", error);
+        next(error);
+    }
+};
