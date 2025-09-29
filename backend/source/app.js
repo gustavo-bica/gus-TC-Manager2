@@ -34,6 +34,7 @@ const userRoutes = require("./routes/userRoutes");
 const bancaRoutes = require("./routes/bancaRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 const coordRoutes = require("./routes/coordRoutes");
+const orientadoRoutes = require("./routes/orientadorRoutes");
 
 // --- REGISTRO DAS ROTAS ---
 app.use("/alunos", alunoRoutes);
@@ -45,6 +46,7 @@ app.use("/coordenador", coordRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use('/coordenador', require('./routes/coordRoutes'));
+app.use("/orientador", orientadoRoutes);
 
 // Rota de teste
 app.get("/ping", (req, res) => res.json({ message: "pong 🏓" }));
