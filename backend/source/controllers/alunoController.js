@@ -56,3 +56,76 @@ exports.solicitarOrientador = async (req, res, next) => {
         next(err); 
     }
 };
+
+exports.getMinhaAvaliacao = async (req, res, next) => {
+    
+    const idAlunoLogado = req.user.id;
+
+    try {
+        // busca dados principais do trabalho e orientador
+        const [trabalhoInfo] = await db.query(`
+            SELECT
+                t.id_trabalho,
+                aluno.id_curso,
+                orientador.nome AS nome_orientador,
+                orientador.email AS email_orientador
+            FROM trabalhos AS t
+            JOIN usuarios AS orientador ON t.id_orientador = orientador.id_usuario
+            JOIN usuarios AS aluno ON t.id_aluno = aluno.id_usuario
+            WHERE t.id_aluno = ?;
+        `, [idAlunoLogado]);
+
+        if (trabalhoInfo.length === 0) {
+            return res.json({ message: "Nenhum trabalho encontrado para este aluno."});
+        }
+
+        const meuTrabalho = trabalhoInfo[0];
+
+        // busca os membros da banca
+        const [banca] = await db.query(`
+            SELECT u.nome, u.email
+            FROM banca_avaliadora AS ba
+            JOIN usuarios AS u ON ba.id_professor = u.id_usuario
+            WHERE ba.id_trabalho = ?;
+            `, [meuTrabalho.id_trabalho]);
+
+        const [coordenadorInfo] = await db.query(`
+            SELECT nome, email 
+            FROM usuarios 
+            WHERE id_tipo_usuario = 3 AND id_curso = ?;
+            `, [meuTrabalho.id_curso]);
+
+        // busca a próxima entrega pendente
+        const [proximaEntrega] = await db.query(`
+            SELECT e.descricao, en.data_prevista, en.caminho_arquivo
+            FROM entregas AS en
+            JOIN etapas AS e ON en.id_etapa = e.id_etapa
+            WHERE en.id_trabalho = ? AND en.data_entrega IS NULL
+            ORDER BY en.data_prevista ASC
+            LIMIT 1;
+            `, [meuTrabalho.id_trabalho]);
+
+        // busca o histórico de todas as entregas
+        const [historicoEntregas] = await db.query(`
+            SELECT e.descricao, en.data_entrega, en.data_prevista
+            FROM entregas AS en
+            JOIN etapas AS e ON en.id_etapa = e.id_etapa
+            WHERE en.id_trabalho = ?
+            ORDER BY en.data_prevista ASC;
+            `, [meuTrabalho.id_trabalho]);
+
+        const dadosFinais = {
+            orientador: meuTrabalho,
+            banca: banca, // array de membros da banca
+            coordenador: coordenadorInfo[0] || null,
+            etapaAtual: proximaEntrega[0] || null,
+            historico: historicoEntregas
+        };
+
+        res.json(dadosFinais);
+
+    } catch (error) {
+        console.error("Erro ao buscar dados de avaliação do aluno", error);
+        next(error);
+    }
+};

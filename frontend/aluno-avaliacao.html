@@ -52,7 +52,8 @@
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle d-flex align-items-center gap-2" type="button"
                         id="usuarioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> João
+                        <i class="bi bi-person-circle"></i>
+                        <span id="nome-usuario">Carregando...</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                         <li><a class="dropdown-item" href="#">Perfil</a></li>
@@ -71,19 +72,19 @@
 
                         <!-- Linha 1 -->
                         <div class="d-flex justify-content-between align-items-center rounded-pill mb-2 px-3">
-                            <span class="fw-bold px-4 py-1 rounded"
+                            <span id="prazo-final-label" class="fw-bold px-4 py-1 rounded"
                                 style="background-color: #ffbd59; border-radius: 0.25rem;">Prazo final para envio</span>
 
                             <!-- Cronômetro -->
-                            <span class="fw-bold px-3 py-1 ms-3 rounded"
-                                style="background-color: #198754; color: white; border-radius: 0.25rem;">00:00:00</span>
+                            <span id="cronometro" class="fw-bold px-3 py-1 ms-3 rounded"
+                                style="background-color: #198754; color: white; border-radius: 0.25rem;">--:--:--</span>
                         </div>
 
                         <!-- Linha 2 -->
                         <div class="d-flex align-items-center rounded-pill mb-2" style="background-color: #f1efef;">
                             <button class="btn btn-sm btn-selected rounded-pill me-3"
                                 style="width: 150px;">Arquivo</button>
-                            <span class="fw-bold">Nome do arquivo</span>
+                            <span id="nome-arquivo" class="fw-bold">Nenhum arquivo enviado</span>
                         </div>
                     </div>
 
@@ -96,19 +97,19 @@
                         <tbody>
                             <tr>
                                 <td class="fw-bold" style="width: 40%;">Orientador</td>
-                                <td></td>
+                                <td id="info-orientador"></td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Banca 1</td>
-                                <td></td>
+                                <td id="info-banca-1"></td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Banca 2</td>
-                                <td></td>
+                                <td id="info-banca-2"></td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Coordenador</td>
-                                <td></td>
+                                <td id="info-coordenador"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -126,7 +127,7 @@
                                 <th style="width: 40%;">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tabela-avaliacao-body">
                             <tr>
                                 <td colspan="3"></td>
                             </tr>
@@ -150,6 +151,110 @@
                 allowInput: true
             });
             document.getElementById('calendarBtn').addEventListener('click', () => fp.open());
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                carregarNomeUsuario();
+                carregarDadosAvalicao();
+            });
+
+            let cronometroInterval;
+
+            function carregarNomeUsuario() {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                const nomeUsuarioEl = document.getElementById('nome-usuario');
+                if (nomeUsuarioEl) {
+                    nomeUsuarioEl.textContent = userInfo ? userInfo.nome : 'Aluno';
+                }
+            }
+
+            async function carregarDadosAvalicao() {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:3000/alunos/minha-avaliacao', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) {
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    // preenche tabela de contatos
+                    document.getElementById('info-orientador').textContent = `${data.orientador.nome_orientador} (${data.orientador.email_orientador})`;
+                    document.getElementById('info-banca-1').textContent = data.banca[0] ? `${data.banca[0].nome} (${data.banca[0].email})` : 'A definir';
+                    document.getElementById('info-banca-2').textContent = data.banca[1] ? `${data.banca[1].nome} (${data.banca[1].email})` : 'A definir';
+                    document.getElementById('info-coordenador').textContent = data.coordenador ? `${data.coordenador.nome} (${data.coordenador.email})` : 'Não encontrado';
+
+                    // preenche informações da etapa atual
+                    if (data.etapaAtual) {
+                        document.getElementById('prazo-final-label').textContent = data.etapaAtual.descricao;
+                        document.getElementById('nome-arquivo').textContent = data.etapaAtual.caminho_arquivo || 'Nenhum arquivo enviado';
+                        iniciarCronometro(data.etapaAtual.data_prevista);
+                    } else {
+                        document.getElementById('prazo-final-label').textContent = 'Nenhuma etapa pendente';
+                        document.getElementById('cronometro').textContent = 'Concluído';
+                    }
+
+                    // preenche histórico de avaliação
+                    const historicoTBody = document.getElementById('tabela-avaliacao-body');
+                    historicoTBody.innerHTML = '';
+                    if (data.historico && data.historico.length > 0) {
+                        data.historico.forEach(entrega =>{
+                            const row = historicoTBody.insertRow();
+                            const status = entrega.data_entrega ? `<span class="badge bg-success">Entregue</span>` : `<span class="badge bg-warning">Pendente</span>`;
+                            const dataFormatada = entrega.data_entrega ? new Date(entrega.data_entrega).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '--';
+
+                            row.innerHTML = `
+                                <td>${entrega.descricao}</td>
+                                <td>${dataFormatada}</td>
+                                <td>${status}</td>
+                            `;
+                        });
+
+                    } else {
+                        historicoTBody.innerHTML = '<tr><td colspan="3">Nenhum histórico de entrega encontrado.</td></tr>';
+                    }
+
+                } catch (error) {
+                    console.error("Erro ao carregar dados da avaliação: ", error);
+                }
+            }
+
+            function iniciarCronometro(dataFim) {
+                clearInterval(cronometroInterval);
+                const dataFinal = new Date(dataFim).getTime();
+                const cronometroEl = document.getElementById('cronometro');
+
+                cronometroInterval = setInterval(() => {
+                    const agora = new Date().getTime();
+                    const distancia = dataFinal - agora;
+
+                    if (distancia < 0) {
+                        clearInterval(cronometroInterval);
+                        cronometroEl.textContent = "PRAZO ENCERRADO";
+                        cronometroEl.style.backgroundColor = '#dc3545';
+                        return;
+                    }
+
+                    const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+                    const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+                    const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+                    cronometroEl.textContent = `${dias}d ${horas}h ${minutos}m`;
+                }, 1000);
+            }
+
         </script>
     </div>
 </body>
