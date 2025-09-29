@@ -129,3 +129,26 @@ exports.getMinhaAvaliacao = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.solicitaOrientador = async (req, res, next) => {
+    const idAluno = req.user.id;
+    const { id_orientador } = req.body;
+
+    try {
+        const [trabalhos] = await db.query("SELECT id_trabalho FROM trabalhos WHERE id_aluno = ?", [idAlunoLogado]);
+
+        if (trabalhos.length === 0) {
+            return res.status(400).json({ message: "Trabalho não encontrado." });
+        }
+
+        const idTrabalho = trabalhos[0].id_trabalho;
+
+        const query = "UPDATE trabalhos SET id_orientador = ?, id_status = 2 WHERE id_trabalho = ?";
+        await db.query(query, [id_orientador, idTrabalho]);
+
+        res.json({ message: "Orientador solicitado com sucesso!" });
+
+    } catch (error) {
+        next(error);
+    }
+};

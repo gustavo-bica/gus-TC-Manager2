@@ -58,12 +58,12 @@ const Desenvolvimento = {
      * Cria um novo registro de orientação (reunião) no banco.
      */
     createRegistro: async (dadosRegistro) => {
-        // Adicionamos 'status' aqui
-        const { id_trabalho, data_reuniao, assunto_discutido, status } = dadosRegistro;
-        // Adicionamos a coluna 'status' e o valor '?' na query
-        const query = "INSERT INTO ORIENTACOES (id_trabalho, data_reuniao, assunto_discutido, status) VALUES (?, ?, ?, ?)";
-        // Adicionamos a variável 'status' nos parâmetros
-        const [result] = await db.execute(query, [id_trabalho, data_reuniao, assunto_discutido, status]);
+        const { id_trabalho, data_reuniao, assunto_discutido } = dadosRegistro;
+
+        const query = "INSERT INTO ORIENTACOES (id_trabalho, data_reuniao, assunto_discutido) VALUES (?, ?, ?)";
+
+        const [result] = await db.execute(query, [id_trabalho, data_reuniao, assunto_discutido]);
+
         return result;
     }
 };
