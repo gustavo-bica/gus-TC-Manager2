@@ -10,4 +10,11 @@ router.get(
     orientadorController.getMeusOrientandos
 );
 
+router.get(
+    "/possiveis-orientandos",
+    authMiddleware,
+    authorize(['professor']),
+    orientadorController.getAlunosSemOrientador
+);
+
 module.exports = router;
